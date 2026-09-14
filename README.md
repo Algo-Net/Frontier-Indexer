@@ -14,7 +14,7 @@ The easiest way to start the indexer is using the provided Docker Compose stack,
 
 ### 1. Clone the Repository
 ```sh
-git clone https://github.com/Ocky-Public/Frontier-Indexer.git
+git clone https://github.com/Algo-Net/Frontier-Indexer.git
 cd Frontier-Indexer
 ```
 
@@ -67,7 +67,7 @@ docker run -d --network frontier \
 Then start the indexer container:
 
 ```sh
-INDEXER_VERSION=$(curl -s https://api.github.com/repos/Ocky-Public/Frontier-Indexer/releases/latest | grep '"tag_name"' | sed 's/.*"tag_name": *"\(.*\)".*/\1/')
+INDEXER_VERSION=$(curl -s https://api.github.com/repos/Algo-Net/Frontier-Indexer/releases/latest | grep '"tag_name"' | sed 's/.*"tag_name": *"\(.*\)".*/\1/')
 
 docker run --rm --network frontier \
   --name frontier-indexer \
@@ -77,7 +77,7 @@ docker run --rm --network frontier \
   -e DB_PASSWORD=postgres \
   -e DB_SCHEMA=indexer \
   -e SUI_NETWORK=testnet \
-  ghcr.io/ocky-public/frontier-indexer:$INDEXER_VERSION
+  ghcr.io/algo-net/frontier-indexer:$INDEXER_VERSION
 ```
 
 All behaviour is controlled through environment variables. See [Container Configuration](docs/users/configuration.md) for the full list of available options.
@@ -105,7 +105,7 @@ Contributions to the project are welcomed as long as they stay within the scope 
 1. Clone the repository:
 
    ```sh
-   git clone https://github.com/Ocky-Public/Frontier-Indexer.git
+   git clone https://github.com/Algo-Net/Frontier-Indexer.git
    cd Frontier-Indexer
    ```
 

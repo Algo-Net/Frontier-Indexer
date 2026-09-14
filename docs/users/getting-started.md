@@ -2,7 +2,7 @@
 The Frontier Indexer is designed to be easy to deploy using Docker. This guide will walk you through the quickest way to get the indexer running by running it as a container.
 
 ## Deployment via Container Registry
-If you don't intend to customize the indexer and just want to run it, you can pull the official image from the [GitHub Container Registry](https://github.com/Ocky-Public/Frontier-Indexer/pkgs/container/frontier-indexer).
+If you don't intend to customize the indexer and just want to run it, you can pull the official image from the [GitHub Container Registry](https://github.com/Algo-Net/Frontier-Indexer/pkgs/container/frontier-indexer).
 
 ### Example Docker Compose Deployment
 
@@ -32,7 +32,7 @@ services:
     restart: on-failure
 
   indexer:
-    image: ghcr.io/ocky-public/frontier-indexer:latest
+    image: ghcr.io/algo-net/frontier-indexer:latest
     ports:
       - 9184:9184
     environment:

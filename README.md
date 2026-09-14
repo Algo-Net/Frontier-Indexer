@@ -7,7 +7,7 @@ A custom [Sui](https://sui.io/) indexer for the EVE Frontier [world contracts](h
 > This project is still under active development. Interfaces and configuration options may change between releases.
 
 ## Getting Started
-If you are only looking for an indexer that covers the world contracts and dont intend to customize it in any way then the indexer is available as a docker container from [Github Container Registry.](https://github.com/Ocky-Public/Frontier-Indexer/pkgs/container/frontier-indexer) Please see the [Getting Started](docs/users/getting-started.md) guide for an example of how it can be deployed.
+If you are only looking for an indexer that covers the world contracts and dont intend to customize it in any way then the indexer is available as a docker container from [Github Container Registry.](https://github.com/Algo-Net/Frontier-Indexer/pkgs/container/frontier-indexer) Please see the [Getting Started](docs/users/getting-started.md) guide for an example of how it can be deployed.
 
 ## Quick Start (Local Deployment)
 The easiest way to start the indexer is using the provided Docker Compose stack, which includes both the indexer and a TimescaleDB instance.

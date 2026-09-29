@@ -52,9 +52,9 @@ sui-indexer-alt-framework = { git = "https://github.com/Algo-Net/sui.git", branc
 sui-indexer-alt-framework-store-traits = { git = "https://github.com/Algo-Net/sui.git", branch = "testnet-indexer-0.4.0" }
 sui-transaction-builder = { git = "https://github.com/Algo-Net/sui.git", branch = "testnet-indexer-0.4.0" }
 
-sui-sdk-types = { git = "https://github.com/MystenLabs/sui-rust-sdk.git", rev = "c406a6ca42f4cc7b1409e133421eec123b7875d6", features = [ "hash", "serde" ] }
-sui-crypto = { git = "https://github.com/MystenLabs/sui-rust-sdk.git", rev = "c406a6ca42f4cc7b1409e133421eec123b7875d6", features = [ "ed25519", "secp256r1", "secp256k1", "passkey", "zklogin" ] }
-sui-rpc = { git = "https://github.com/MystenLabs/sui-rust-sdk.git", rev = "c406a6ca42f4cc7b1409e133421eec123b7875d6", features = [ "unstable" ] }
+sui-sdk-types = { git = "https://github.com/MystenLabs/sui-rust-sdk.git", rev = "788907487b40bc341bd90ee26428c4098fc1e515", features = [ "hash", "serde" ] }
+sui-crypto = { git = "https://github.com/MystenLabs/sui-rust-sdk.git", rev = "788907487b40bc341bd90ee26428c4098fc1e515", features = [ "ed25519", "secp256r1", "secp256k1", "passkey", "zklogin" ] }
+sui-rpc = { git = "https://github.com/MystenLabs/sui-rust-sdk.git", rev = "788907487b40bc341bd90ee26428c4098fc1e515", features = [ "unstable" ] }
 
 # Database
 chrono = { version = "0.4.44", features = ["clock", "serde"] }

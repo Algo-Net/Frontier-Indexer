@@ -234,7 +234,7 @@ dependencies = [
  "http",
  "matchit 0.5.0",
  "pin-project-lite",
- "pkcs8 0.10.2",
+ "pkcs8",
  "quinn",
  "quinn-proto",
  "rand 0.8.6",
@@ -1054,15 +1054,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
 
 [[package]]
-name = "base64-url"
-version = "2.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fb9fb9fb058cc3063b5fc88d9a21eefa2735871498a04e1650da76ed511c8569"
-dependencies = [
- "base64 0.21.7",
-]
-
-[[package]]
 name = "base64ct"
 version = "1.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1753,7 +1744,7 @@ checksum = "7b77c319abfd5219629c45c34c89ba945ed3c5e49fcde9d16b6c3885f118a730"
 dependencies = [
  "const-oid 0.9.6",
  "der 0.7.10",
- "spki 0.7.3",
+ "spki",
  "x509-cert",
 ]
 
@@ -1840,9 +1831,9 @@ dependencies = [
 [[package]]
 name = "consensus-config"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
- "fastcrypto 0.1.11",
+ "fastcrypto",
  "mysten-network",
  "rand 0.8.6",
  "serde",
@@ -1852,11 +1843,11 @@ dependencies = [
 [[package]]
 name = "consensus-types"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "base64 0.21.7",
  "consensus-config",
- "fastcrypto 0.1.11",
+ "fastcrypto",
  "serde",
 ]
 
@@ -2458,8 +2449,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f1a467a65c5e759bce6e65eaf91cc29f466cdc57cb65777bd646872a8a1fd4de"
 dependencies = [
  "const-oid 0.9.6",
- "pem-rfc7468 0.6.0",
- "zeroize",
 ]
 
 [[package]]
@@ -2471,7 +2460,7 @@ dependencies = [
  "const-oid 0.9.6",
  "der_derive",
  "flagset",
- "pem-rfc7468 0.7.0",
+ "pem-rfc7468",
  "zeroize",
 ]
 
@@ -2836,7 +2825,7 @@ dependencies = [
  "elliptic-curve 0.13.8",
  "rfc6979 0.4.0",
  "signature 2.2.0",
- "spki 0.7.3",
+ "spki",
 ]
 
 [[package]]
@@ -2845,7 +2834,7 @@ version = "2.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "115531babc129696a58c64a4fef0a8bf9e9698629fb97e9e40767d235cfbcd53"
 dependencies = [
- "pkcs8 0.10.2",
+ "pkcs8",
  "signature 2.2.0",
  "zeroize",
 ]
@@ -2920,8 +2909,8 @@ dependencies = [
  "ff 0.13.1",
  "generic-array",
  "group 0.13.0",
- "pem-rfc7468 0.7.0",
- "pkcs8 0.10.2",
+ "pem-rfc7468",
+ "pkcs8",
  "rand_core 0.6.4",
  "sec1 0.7.3",
  "subtle",
@@ -2982,7 +2971,7 @@ dependencies = [
 [[package]]
 name = "enum-compat-util"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "serde_yaml",
 ]
@@ -3132,60 +3121,8 @@ dependencies = [
 
 [[package]]
 name = "fastcrypto"
-version = "0.1.9"
-source = "git+https://github.com/MystenLabs/fastcrypto?rev=4db0e90c732bbf7420ca20de808b698883148d9c#4db0e90c732bbf7420ca20de808b698883148d9c"
-dependencies = [
- "ark-ec",
- "ark-ff",
- "ark-secp256k1",
- "ark-secp256r1",
- "ark-serialize",
- "auto_ops",
- "base64ct",
- "bcs",
- "bech32",
- "bincode",
- "blake2",
- "blst",
- "bs58 0.4.0",
- "curve25519-dalek-ng",
- "derive_more 0.99.20",
- "digest 0.10.7",
- "ecdsa 0.16.9",
- "ed25519-consensus",
- "elliptic-curve 0.13.8",
- "fastcrypto-derive 0.1.3",
- "generic-array",
- "hex",
- "hex-literal",
- "hkdf",
- "lazy_static",
- "num-bigint 0.4.6",
- "once_cell",
- "p256",
- "rand 0.8.6",
- "readonly",
- "rfc6979 0.4.0",
- "rsa 0.8.2",
- "schemars 0.8.22",
- "secp256k1",
- "serde",
- "serde_json",
- "serde_with",
- "sha2 0.10.9",
- "sha3",
- "signature 2.2.0",
- "static_assertions",
- "thiserror 1.0.69",
- "tokio",
- "typenum",
- "zeroize",
-]
-
-[[package]]
-name = "fastcrypto"
 version = "0.1.11"
-source = "git+https://github.com/MystenLabs/fastcrypto?rev=076bf5ad8cea140dc7cf5c5861c24a36acdf64ce#076bf5ad8cea140dc7cf5c5861c24a36acdf64ce"
+source = "git+https://github.com/MystenLabs/fastcrypto?rev=da61cd46013fdd65361e57f7b9d4ae2244f86430#da61cd46013fdd65361e57f7b9d4ae2244f86430"
 dependencies = [
  "aes",
  "aes-gcm",
@@ -3213,7 +3150,7 @@ dependencies = [
  "ecdsa 0.16.9",
  "ed25519-consensus",
  "elliptic-curve 0.13.8",
- "fastcrypto-derive 0.1.4",
+ "fastcrypto-derive",
  "generic-array",
  "hex",
  "hex-literal",
@@ -3228,7 +3165,7 @@ dependencies = [
  "rand 0.8.6",
  "readonly",
  "rfc6979 0.4.0",
- "rsa 0.9.10",
+ "rsa",
  "rustls-pki-types",
  "schemars 0.8.22",
  "secp256k1",
@@ -3249,30 +3186,38 @@ dependencies = [
 
 [[package]]
 name = "fastcrypto-derive"
-version = "0.1.3"
-source = "git+https://github.com/MystenLabs/fastcrypto?rev=4db0e90c732bbf7420ca20de808b698883148d9c#4db0e90c732bbf7420ca20de808b698883148d9c"
+version = "0.1.4"
+source = "git+https://github.com/MystenLabs/fastcrypto?rev=da61cd46013fdd65361e57f7b9d4ae2244f86430#da61cd46013fdd65361e57f7b9d4ae2244f86430"
 dependencies = [
  "quote",
  "syn 1.0.109",
 ]
 
 [[package]]
-name = "fastcrypto-derive"
-version = "0.1.4"
-source = "git+https://github.com/MystenLabs/fastcrypto?rev=076bf5ad8cea140dc7cf5c5861c24a36acdf64ce#076bf5ad8cea140dc7cf5c5861c24a36acdf64ce"
+name = "fastcrypto-pq"
+version = "0.1.0"
+source = "git+https://github.com/MystenLabs/fastcrypto?rev=da61cd46013fdd65361e57f7b9d4ae2244f86430#da61cd46013fdd65361e57f7b9d4ae2244f86430"
 dependencies = [
- "quote",
- "syn 1.0.109",
+ "bincode",
+ "digest 0.10.7",
+ "fastcrypto",
+ "fastcrypto-derive",
+ "mysten-mldsa-native-rs",
+ "once_cell",
+ "rand 0.8.6",
+ "serde",
+ "sha2 0.10.9",
+ "zeroize",
 ]
 
 [[package]]
 name = "fastcrypto-tbls"
 version = "0.1.0"
-source = "git+https://github.com/MystenLabs/fastcrypto?rev=076bf5ad8cea140dc7cf5c5861c24a36acdf64ce#076bf5ad8cea140dc7cf5c5861c24a36acdf64ce"
+source = "git+https://github.com/MystenLabs/fastcrypto?rev=da61cd46013fdd65361e57f7b9d4ae2244f86430#da61cd46013fdd65361e57f7b9d4ae2244f86430"
 dependencies = [
  "bcs",
  "digest 0.10.7",
- "fastcrypto 0.1.11",
+ "fastcrypto",
  "hex",
  "itertools 0.10.5",
  "rand 0.8.6",
@@ -3288,7 +3233,7 @@ dependencies = [
 [[package]]
 name = "fastcrypto-zkp"
 version = "0.1.4"
-source = "git+https://github.com/MystenLabs/fastcrypto?rev=076bf5ad8cea140dc7cf5c5861c24a36acdf64ce#076bf5ad8cea140dc7cf5c5861c24a36acdf64ce"
+source = "git+https://github.com/MystenLabs/fastcrypto?rev=da61cd46013fdd65361e57f7b9d4ae2244f86430#da61cd46013fdd65361e57f7b9d4ae2244f86430"
 dependencies = [
  "ark-bn254",
  "ark-ec",
@@ -3300,7 +3245,7 @@ dependencies = [
  "bcs",
  "byte-slice-cast",
  "derive_more 0.99.20",
- "fastcrypto 0.1.11",
+ "fastcrypto",
  "ff 0.13.1",
  "imbl",
  "itertools 0.12.1",
@@ -4311,7 +4256,7 @@ dependencies = [
  "diesel-async",
  "diesel_migrations",
  "dotenvy",
- "fastcrypto 0.1.9",
+ "fastcrypto",
  "futures",
  "hex",
  "http",
@@ -4544,7 +4489,7 @@ dependencies = [
 [[package]]
 name = "jsonrpc"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "serde",
  "serde_json",
@@ -5129,36 +5074,19 @@ dependencies = [
 ]
 
 [[package]]
-name = "moka"
-version = "0.12.15"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "957228ad12042ee839f93c8f257b62b4c0ab5eaae1d4fa60de53b27c9d7c5046"
-dependencies = [
- "crossbeam-channel",
- "crossbeam-epoch",
- "crossbeam-utils",
- "equivalent",
- "parking_lot 0.12.5",
- "portable-atomic",
- "smallvec",
- "tagptr",
- "uuid",
-]
-
-[[package]]
 name = "move-abstract-interpreter"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 
 [[package]]
 name = "move-abstract-stack"
 version = "0.0.1"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 
 [[package]]
 name = "move-binary-format"
 version = "0.0.3"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anyhow",
  "enum-compat-util",
@@ -5174,12 +5102,12 @@ dependencies = [
 [[package]]
 name = "move-borrow-graph"
 version = "0.0.1"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 
 [[package]]
 name = "move-bytecode-source-map"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anyhow",
  "bcs",
@@ -5195,7 +5123,7 @@ dependencies = [
 [[package]]
 name = "move-bytecode-utils"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anyhow",
  "indexmap 2.14.0",
@@ -5208,7 +5136,7 @@ dependencies = [
 [[package]]
 name = "move-bytecode-verifier"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "move-abstract-interpreter",
  "move-abstract-stack",
@@ -5225,7 +5153,7 @@ dependencies = [
 [[package]]
 name = "move-bytecode-verifier-meter"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "move-binary-format",
  "move-core-types",
@@ -5235,7 +5163,7 @@ dependencies = [
 [[package]]
 name = "move-command-line-common"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anyhow",
  "bcs",
@@ -5255,7 +5183,7 @@ dependencies = [
 [[package]]
 name = "move-compiler"
 version = "0.0.1"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anyhow",
  "bcs",
@@ -5291,7 +5219,7 @@ dependencies = [
 [[package]]
 name = "move-core-types"
 version = "0.0.4"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anyhow",
  "bcs",
@@ -5313,7 +5241,7 @@ dependencies = [
 [[package]]
 name = "move-coverage"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anyhow",
  "bcs",
@@ -5339,7 +5267,7 @@ dependencies = [
 [[package]]
 name = "move-disassembler"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anyhow",
  "clap",
@@ -5359,7 +5287,7 @@ dependencies = [
 [[package]]
 name = "move-ir-to-bytecode"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anyhow",
  "codespan-reporting",
@@ -5377,7 +5305,7 @@ dependencies = [
 [[package]]
 name = "move-ir-to-bytecode-syntax"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anyhow",
  "hex",
@@ -5390,7 +5318,7 @@ dependencies = [
 [[package]]
 name = "move-ir-types"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "hex",
  "move-command-line-common",
@@ -5402,7 +5330,7 @@ dependencies = [
 [[package]]
 name = "move-proc-macros"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "enum-compat-util",
  "quote",
@@ -5412,7 +5340,7 @@ dependencies = [
 [[package]]
 name = "move-regex-borrow-graph"
 version = "0.0.1"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "indexmap 2.14.0",
  "move-binary-format",
@@ -5424,7 +5352,7 @@ dependencies = [
 [[package]]
 name = "move-symbol-pool"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "phf 0.11.3",
  "serde",
@@ -5433,7 +5361,7 @@ dependencies = [
 [[package]]
 name = "move-trace-format"
 version = "0.0.1"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "move-binary-format",
  "move-core-types",
@@ -5445,7 +5373,7 @@ dependencies = [
 [[package]]
 name = "move-vm-config"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "move-binary-format",
 ]
@@ -5453,7 +5381,7 @@ dependencies = [
 [[package]]
 name = "move-vm-profiler"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "move-trace-format",
  "move-vm-config",
@@ -5545,7 +5473,7 @@ dependencies = [
 [[package]]
 name = "mysten-common"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "antithesis_sdk",
  "either",
@@ -5568,7 +5496,7 @@ dependencies = [
 [[package]]
 name = "mysten-metrics"
 version = "0.7.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "async-trait",
  "axum 0.8.9",
@@ -5587,9 +5515,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "mysten-mldsa-native-rs"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5231855e373e808df1b5e3db04233163ece09bec5866fbd8035cc2a7cdfdd831"
+dependencies = [
+ "cc",
+ "cpufeatures 0.2.17",
+ "zeroize",
+]
+
+[[package]]
 name = "mysten-network"
 version = "0.2.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anemo",
  "anemo-tower",
@@ -6351,15 +6290,6 @@ dependencies = [
 
 [[package]]
 name = "pem-rfc7468"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "24d159833a9105500e0398934e205e0773f0b27529557134ecfc51c27646adac"
-dependencies = [
- "base64ct",
-]
-
-[[package]]
-name = "pem-rfc7468"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "88b39c9bfcfc231068454382784bb460aae594343fb030d46e9f50a645418412"
@@ -6507,25 +6437,13 @@ dependencies = [
 
 [[package]]
 name = "pkcs1"
-version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eff33bdbdfc54cc98a2eca766ebdec3e1b8fb7387523d5c9c9a2891da856f719"
-dependencies = [
- "der 0.6.1",
- "pkcs8 0.9.0",
- "spki 0.6.0",
- "zeroize",
-]
-
-[[package]]
-name = "pkcs1"
 version = "0.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c8ffb9f10fa047879315e6625af03c164b16962a5368d724ed16323b68ace47f"
 dependencies = [
  "der 0.7.10",
- "pkcs8 0.10.2",
- "spki 0.7.3",
+ "pkcs8",
+ "spki",
 ]
 
 [[package]]
@@ -6538,7 +6456,7 @@ dependencies = [
  "const-oid 0.9.6",
  "der 0.7.10",
  "digest 0.10.7",
- "spki 0.7.3",
+ "spki",
  "x509-cert",
  "zeroize",
 ]
@@ -6555,17 +6473,7 @@ dependencies = [
  "pbkdf2 0.12.2",
  "scrypt",
  "sha2 0.10.9",
- "spki 0.7.3",
-]
-
-[[package]]
-name = "pkcs8"
-version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9eca2c590a5f85da82668fa685c09ce2888b9430e83299debf1f34b65fd4a4ba"
-dependencies = [
- "der 0.6.1",
- "spki 0.6.0",
+ "spki",
 ]
 
 [[package]]
@@ -6575,7 +6483,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f950b2377845cebe5cf8b5165cb3cc1a5e0fa5cfa3e1f7f55707d8fd82e0a7b7"
 dependencies = [
  "der 0.7.10",
- "spki 0.7.3",
+ "spki",
 ]
 
 [[package]]
@@ -6852,7 +6760,7 @@ dependencies = [
 [[package]]
 name = "prometheus-closure-metric"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anyhow",
  "prometheus",
@@ -7565,27 +7473,6 @@ dependencies = [
 
 [[package]]
 name = "rsa"
-version = "0.8.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "55a77d189da1fee555ad95b7e50e7457d91c0e089ec68ca69ad2989413bbdab4"
-dependencies = [
- "byteorder",
- "digest 0.10.7",
- "num-bigint-dig",
- "num-integer",
- "num-iter",
- "num-traits",
- "pkcs1 0.4.1",
- "pkcs8 0.9.0",
- "rand_core 0.6.4",
- "sha2 0.10.9",
- "signature 2.2.0",
- "subtle",
- "zeroize",
-]
-
-[[package]]
-name = "rsa"
 version = "0.9.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b8573f03f5883dcaebdfcf4725caa1ecb9c15b2ef50c43a07b816e06799bb12d"
@@ -7595,12 +7482,12 @@ dependencies = [
  "num-bigint-dig",
  "num-integer",
  "num-traits",
- "pkcs1 0.7.5",
- "pkcs8 0.10.2",
+ "pkcs1",
+ "pkcs8",
  "rand_core 0.6.4",
  "sha2 0.10.9",
  "signature 2.2.0",
- "spki 0.7.3",
+ "spki",
  "subtle",
  "zeroize",
 ]
@@ -8002,7 +7889,7 @@ dependencies = [
  "base16ct 0.2.0",
  "der 0.7.10",
  "generic-array",
- "pkcs8 0.10.2",
+ "pkcs8",
  "subtle",
  "zeroize",
 ]
@@ -8347,11 +8234,11 @@ dependencies = [
 [[package]]
 name = "shared-crypto"
 version = "0.0.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "bcs",
  "eyre",
- "fastcrypto 0.1.11",
+ "fastcrypto",
  "serde",
  "serde_repr",
 ]
@@ -8405,7 +8292,7 @@ version = "0.27.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c1e303f8205714074f6068773f0e29527e0453937fe837c9717d066635b65f31"
 dependencies = [
- "pkcs8 0.10.2",
+ "pkcs8",
  "rand_core 0.6.4",
  "signature 2.2.0",
  "zeroize",
@@ -8585,16 +8472,6 @@ dependencies = [
 
 [[package]]
 name = "spki"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "67cf02bbac7a337dc36e4f5a693db6c21e7863f45070f7064577eb4367a3212b"
-dependencies = [
- "base64ct",
- "der 0.6.1",
-]
-
-[[package]]
-name = "spki"
 version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d91ed6c858b01f942cd56b37a94b3e0a1798290327d1236e4d9cf4eaca44d29d"
@@ -8722,7 +8599,7 @@ dependencies = [
  "once_cell",
  "percent-encoding",
  "rand 0.8.6",
- "rsa 0.9.10",
+ "rsa",
  "serde",
  "sha1",
  "sha2 0.10.9",
@@ -9007,7 +8884,7 @@ checksum = "734676eb262c623cec13c3155096e08d1f8f29adce39ba17948b18dad1e54142"
 [[package]]
 name = "sui-config"
 version = "0.0.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anemo",
  "anyhow",
@@ -9016,7 +8893,7 @@ dependencies = [
  "consensus-config",
  "csv",
  "dirs",
- "fastcrypto 0.1.11",
+ "fastcrypto",
  "move-vm-config",
  "mysten-common",
  "nonzero_ext",
@@ -9039,7 +8916,7 @@ dependencies = [
 [[package]]
 name = "sui-crypto"
 version = "0.4.0"
-source = "git+https://github.com/MystenLabs/sui-rust-sdk.git?rev=788907487b40bc341bd90ee26428c4098fc1e515#788907487b40bc341bd90ee26428c4098fc1e515"
+source = "git+https://github.com/MystenLabs/sui-rust-sdk.git?rev=2c5db7c2348a79582ac8ab2b03431899e4dd098d#2c5db7c2348a79582ac8ab2b03431899e4dd098d"
 dependencies = [
  "ark-bn254",
  "ark-ff",
@@ -9065,23 +8942,23 @@ dependencies = [
 [[package]]
 name = "sui-enum-compat-util"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "serde_yaml",
 ]
 
 [[package]]
 name = "sui-field-count"
-version = "1.81.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+version = "1.82.1"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "sui-field-count-derive",
 ]
 
 [[package]]
 name = "sui-field-count-derive"
-version = "1.81.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+version = "1.82.1"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "quote",
  "syn 1.0.109",
@@ -9089,8 +8966,8 @@ dependencies = [
 
 [[package]]
 name = "sui-futures"
-version = "1.81.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+version = "1.82.1"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anyhow",
  "futures",
@@ -9126,8 +9003,8 @@ dependencies = [
 
 [[package]]
 name = "sui-indexer-alt-framework"
-version = "1.81.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+version = "1.82.1"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -9173,8 +9050,8 @@ dependencies = [
 
 [[package]]
 name = "sui-indexer-alt-framework-store-traits"
-version = "1.81.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+version = "1.82.1"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -9184,8 +9061,8 @@ dependencies = [
 
 [[package]]
 name = "sui-indexer-alt-metrics"
-version = "1.81.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+version = "1.82.1"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anyhow",
  "axum 0.8.9",
@@ -9201,11 +9078,11 @@ dependencies = [
 [[package]]
 name = "sui-json"
 version = "0.0.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anyhow",
  "bcs",
- "fastcrypto 0.1.11",
+ "fastcrypto",
  "move-binary-format",
  "move-bytecode-utils",
  "move-core-types",
@@ -9218,13 +9095,13 @@ dependencies = [
 [[package]]
 name = "sui-json-rpc-types"
 version = "0.0.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anyhow",
  "bcs",
  "colored",
  "enum_dispatch",
- "fastcrypto 0.1.11",
+ "fastcrypto",
  "itertools 0.13.0",
  "json_to_table",
  "move-binary-format",
@@ -9253,7 +9130,7 @@ dependencies = [
 [[package]]
 name = "sui-keys"
 version = "0.0.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -9261,7 +9138,7 @@ dependencies = [
  "bcs",
  "bip32",
  "colored",
- "fastcrypto 0.1.11",
+ "fastcrypto",
  "jsonrpc",
  "mockall",
  "mysten-common",
@@ -9281,7 +9158,7 @@ dependencies = [
 [[package]]
 name = "sui-macros"
 version = "0.7.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "futures",
  "once_cell",
@@ -9292,7 +9169,7 @@ dependencies = [
 [[package]]
 name = "sui-package-resolver"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "async-trait",
  "bcs",
@@ -9308,8 +9185,8 @@ dependencies = [
 
 [[package]]
 name = "sui-pg-db"
-version = "1.81.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+version = "1.82.1"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -9338,7 +9215,7 @@ dependencies = [
 [[package]]
 name = "sui-proc-macros"
 version = "0.7.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "msim-macros",
  "proc-macro2",
@@ -9350,11 +9227,11 @@ dependencies = [
 [[package]]
 name = "sui-protocol-config"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "antithesis_sdk",
  "clap",
- "fastcrypto 0.1.11",
+ "fastcrypto",
  "move-binary-format",
  "move-core-types",
  "move-vm-config",
@@ -9372,7 +9249,7 @@ dependencies = [
 [[package]]
 name = "sui-protocol-config-macros"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -9382,7 +9259,7 @@ dependencies = [
 [[package]]
 name = "sui-rpc"
 version = "0.4.0"
-source = "git+https://github.com/MystenLabs/sui-rust-sdk.git?rev=788907487b40bc341bd90ee26428c4098fc1e515#788907487b40bc341bd90ee26428c4098fc1e515"
+source = "git+https://github.com/MystenLabs/sui-rust-sdk.git?rev=2c5db7c2348a79582ac8ab2b03431899e4dd098d#2c5db7c2348a79582ac8ab2b03431899e4dd098d"
 dependencies = [
  "base64 0.22.1",
  "bcs",
@@ -9407,7 +9284,7 @@ dependencies = [
 [[package]]
 name = "sui-sdk-types"
 version = "0.4.0"
-source = "git+https://github.com/MystenLabs/sui-rust-sdk.git?rev=788907487b40bc341bd90ee26428c4098fc1e515#788907487b40bc341bd90ee26428c4098fc1e515"
+source = "git+https://github.com/MystenLabs/sui-rust-sdk.git?rev=2c5db7c2348a79582ac8ab2b03431899e4dd098d#2c5db7c2348a79582ac8ab2b03431899e4dd098d"
 dependencies = [
  "base64ct",
  "bcs",
@@ -9427,8 +9304,8 @@ dependencies = [
 
 [[package]]
 name = "sui-sql-macro"
-version = "1.81.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+version = "1.82.1"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "quote",
  "syn 1.0.109",
@@ -9438,27 +9315,22 @@ dependencies = [
 [[package]]
 name = "sui-storage"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anyhow",
  "async-trait",
  "backoff",
- "base64-url",
  "bcs",
  "byteorder",
  "bytes",
  "chrono",
- "clap",
  "eyre",
- "fastcrypto 0.1.11",
+ "fastcrypto",
  "futures",
- "hyper",
- "hyper-rustls",
  "indicatif",
  "integer-encoding",
  "itertools 0.13.0",
  "lru 0.18.2",
- "moka",
  "move-binary-format",
  "move-bytecode-utils",
  "move-core-types",
@@ -9475,12 +9347,9 @@ dependencies = [
  "serde",
  "serde_json",
  "sui-config",
- "sui-json-rpc-types",
  "sui-protocol-config",
  "sui-rpc",
  "sui-types",
- "tap",
- "telemetry-subscribers",
  "tempfile",
  "tokio",
  "tracing",
@@ -9492,7 +9361,7 @@ dependencies = [
 [[package]]
 name = "sui-transaction-builder"
 version = "0.0.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -9508,7 +9377,7 @@ dependencies = [
 [[package]]
 name = "sui-types"
 version = "0.1.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anemo",
  "anyhow",
@@ -9526,7 +9395,8 @@ dependencies = [
  "derive_more 1.0.0",
  "enum_dispatch",
  "eyre",
- "fastcrypto 0.1.11",
+ "fastcrypto",
+ "fastcrypto-pq",
  "fastcrypto-tbls",
  "fastcrypto-zkp",
  "imbl",
@@ -9653,12 +9523,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tagptr"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b2093cf4c8eb1e67749a6762251bc9cd836b6fc171623bd0a9d324d37af2417"
-
-[[package]]
 name = "tap"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -9679,7 +9543,7 @@ dependencies = [
 [[package]]
 name = "telemetry-subscribers"
 version = "0.2.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "atomic_float",
  "bytes",
@@ -10541,14 +10405,14 @@ dependencies = [
 [[package]]
 name = "typed-store"
 version = "0.4.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "anyhow",
  "backoff",
  "bcs",
  "bincode",
  "eyre",
- "fastcrypto 0.1.11",
+ "fastcrypto",
  "fdlimit",
  "hdrhistogram",
  "msim",
@@ -10570,7 +10434,7 @@ dependencies = [
 [[package]]
 name = "typed-store-derive"
 version = "0.3.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "itertools 0.13.0",
  "proc-macro2",
@@ -10581,7 +10445,7 @@ dependencies = [
 [[package]]
 name = "typed-store-error"
 version = "0.4.0"
-source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.0#969d89a838aa41d5e66fe5ca6b9c48dedc3efbad"
+source = "git+https://github.com/Algo-Net/sui.git?branch=testnet-indexer-0.4.1#e4aeaa0a7f15a277da6a179576fbaa13a4b46e5b"
 dependencies = [
  "serde",
  "thiserror 1.0.69",
@@ -11522,7 +11386,7 @@ checksum = "1301e935010a701ae5f8655edc0ad17c44bad3ac5ce8c39185f75453b720ae94"
 dependencies = [
  "const-oid 0.9.6",
  "der 0.7.10",
- "spki 0.7.3",
+ "spki",
 ]
 
 [[package]]
@@ -11539,7 +11403,7 @@ dependencies = [
  "pem",
  "ring",
  "signature 2.2.0",
- "spki 0.7.3",
+ "spki",
  "thiserror 1.0.69",
  "zeroize",
 ]

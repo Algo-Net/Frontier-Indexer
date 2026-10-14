@@ -32,6 +32,15 @@ impl NatsTransport {
     }
 }
 
+// Address Aliases
+#[async_trait]
+impl Routing<AddressAliases> for NatsTransport {
+    async fn send(&self, _pipeline: &'static str, item: &AddressAliases) -> anyhow::Result<()> {
+        let routing = format!("{}.{}.{}", "address_aliases", item.id, "updated");
+        self.send(routing, item).await
+    }
+}
+
 // Transaction Digests
 #[async_trait]
 impl Routing<StoredTransactionDigest> for NatsTransport {

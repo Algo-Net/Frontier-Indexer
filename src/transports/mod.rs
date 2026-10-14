@@ -33,7 +33,8 @@ mod private {
     pub trait Router: Send + Sync + 'static {}
 
     impl<T> Router for T where
-        T: super::Routing<StoredTransactionDigest>
+        T: super::Routing<AddressAliases>
+            + super::Routing<StoredTransactionDigest>
             + super::Routing<StoredOwnerCapCreated>
             + super::Routing<OwnerCapAction>
             + super::Routing<StoredOwnerCapTransferred>

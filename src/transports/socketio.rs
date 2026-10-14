@@ -28,6 +28,16 @@ impl SocketIoTransport {
     }
 }
 
+// Address Alias
+#[async_trait]
+impl Routing<AddressAliases> for SocketIoTransport {
+    async fn send(&self, pipeline: &'static str, item: &AddressAliases) -> anyhow::Result<()> {
+        let room = item.id.clone();
+        let event = format!("{}:{}", pipeline, "updated");
+        self.send(room, event, item).await
+    }
+}
+
 // Transaction Digests
 #[async_trait]
 impl Routing<StoredTransactionDigest> for SocketIoTransport {

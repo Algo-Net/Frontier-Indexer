@@ -301,6 +301,14 @@ async fn main() -> Result<(), anyhow::Error> {
         .await
         .context("Could not initialize transports")?;
 
+    // Handler for address_alias always runs.
+    indexer
+        .sequential_pipeline(
+            system::AddressAliasHandler::new(&context, transports.for_pipeline()),
+            sequential.clone(),
+        )
+        .await?;
+
     // Handler for tx digests always runs.
     indexer
         .sequential_pipeline(

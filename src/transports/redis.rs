@@ -35,6 +35,15 @@ impl RedisTransport {
     }
 }
 
+// Address Aliases
+#[async_trait]
+impl Routing<AddressAliases> for RedisTransport {
+    async fn send(&self, _pipeline: &'static str, item: &AddressAliases) -> anyhow::Result<()> {
+        let channel = format!("{}:{}:{}", "address_aliases", item.id, "updated");
+        self.send(channel, item).await
+    }
+}
+
 // Transaction Digests
 #[async_trait]
 impl Routing<StoredTransactionDigest> for RedisTransport {

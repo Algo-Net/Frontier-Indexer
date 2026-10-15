@@ -1,4 +1,13 @@
 // @generated automatically by Diesel CLI.
+diesel::table! {
+    address_aliases (address, alias) {
+        #[max_length = 66]
+        address -> Varchar,
+        #[max_length = 66]
+        alias -> Varchar,
+        checkpoint_updated -> Int8,
+    }
+}
 
 diesel::table! {
     assemblies (id) {
@@ -998,6 +1007,7 @@ diesel::table! {
 }
 
 diesel::allow_tables_to_appear_in_same_query!(
+    address_aliases,
     assemblies,
     characters,
     energy_config,

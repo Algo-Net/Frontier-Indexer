@@ -45,171 +45,9 @@ const TESTNET_WORLD_PACKAGES: &[&str] = &[
     "0x7be18d6294e533bedd9a5d70a96ce8d9d4b87a7c74188ba65d3fe966bbed9d92", // World v1
 ];
 
-pub const APP_MODULES: &[&str] = &[];
+const SUI_PACKAGES: &[&str] = &["0x2"];
 
-pub const WORLD_MODULES: &[&str] = &[
-    "assets",
-    "access",
-    "assembly",
-    "EVE",
-    "extension_freeze",
-    "gate",
-    "storage_unit",
-    "turret",
-    "character",
-    "sig_verify",
-    "killmail",
-    "network_node",
-    "energy",
-    "fuel",
-    "in_game_id",
-    "inventory",
-    "location",
-    "metadata",
-    "status",
-    "killmail_registry",
-    "object_registry",
-    "rift",
-    "world",
-];
-
-pub const SUI_MODULES: &[&str] = &["sui"];
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ModuleType {
-    App,
-    World,
-    Sui,
-    Unknown,
-}
-
-pub fn is_app_module(module: &str) -> bool {
-    APP_MODULES.contains(&module)
-}
-
-pub fn is_world_module(module: &str) -> bool {
-    WORLD_MODULES.contains(&module)
-}
-
-pub fn is_sui_module(module: &str) -> bool {
-    SUI_MODULES.contains(&module)
-}
-
-pub fn get_module_type(module: &str) -> ModuleType {
-    if is_app_module(module) {
-        ModuleType::App
-    } else if is_world_module(module) {
-        ModuleType::World
-    } else if is_sui_module(module) {
-        ModuleType::Sui
-    } else {
-        ModuleType::Unknown
-    }
-}
-
-pub fn get_all_known_modules() -> Vec<&'static str> {
-    let mut modules = Vec::new();
-    modules.extend_from_slice(APP_MODULES);
-    modules.extend_from_slice(WORLD_MODULES);
-    modules.extend_from_slice(SUI_MODULES);
-    modules
-}
-
-pub fn get_app_modules() -> &'static [&'static str] {
-    APP_MODULES
-}
-
-pub fn get_world_modules() -> &'static [&'static str] {
-    WORLD_MODULES
-}
-
-pub fn get_sui_modules() -> &'static [&'static str] {
-    SUI_MODULES
-}
-
-pub fn is_valid_app_package(package: &str) -> bool {
-    package != NOT_MAINNET_PACKAGE
-}
-
-pub fn is_valid_world_package(package: &str) -> bool {
-    package != NOT_MAINNET_PACKAGE
-}
-
-pub fn is_valid_app_packages(packages: &[&str]) -> bool {
-    packages.iter().any(|&pkg| is_valid_app_package(pkg))
-}
-
-pub fn is_valid_world_packages(packages: &[&str]) -> bool {
-    packages.iter().any(|&pkg| is_valid_world_package(pkg))
-}
-
-pub fn get_app_package_addresses(env: AppEnv) -> &'static [&'static str] {
-    if let Some(app) = sandbox::app_packages() {
-        return app;
-    }
-
-    match env {
-        AppEnv::Mainnet => MAINNET_PACKAGES,
-        AppEnv::Testnet => TESTNET_PACKAGES,
-    }
-}
-
-pub fn get_app_package_address(env: AppEnv) -> Result<&'static str, String> {
-    if let Some(app) = sandbox::app_packages() {
-        return app
-            .first()
-            .copied()
-            .ok_or_else(|| "No app packages configured in sandbox mode".to_string());
-    }
-
-    let packages = get_app_package_addresses(env);
-
-    for &package in packages {
-        if is_valid_app_package(package) {
-            return Ok(package);
-        }
-    }
-
-    Err(format!(
-        "App package is not supported on {:?}. \
-        The app package has not been deployed on this network.",
-        env
-    ))
-}
-
-pub fn get_world_package_addresses(env: AppEnv) -> &'static [&'static str] {
-    if let Some(world) = sandbox::world_packages() {
-        return world;
-    }
-
-    match env {
-        AppEnv::Mainnet => MAINNET_WORLD_PACKAGES,
-        AppEnv::Testnet => TESTNET_WORLD_PACKAGES,
-    }
-}
-
-pub fn get_world_package_address(env: AppEnv) -> Result<&'static str, String> {
-    if let Some(world) = sandbox::world_packages() {
-        return world
-            .first()
-            .copied()
-            .ok_or_else(|| "No world packages configured in sandbox mode".to_string());
-    }
-
-    let packages = get_world_package_addresses(env);
-
-    for &package in packages {
-        if is_valid_world_package(package) {
-            return Ok(package);
-        }
-    }
-
-    Err(format!(
-        "World package is not supported on {:?}. \
-        The world package has not been deployed on this network.",
-        env
-    ))
-}
+pub const SUI_MODULES: &[&str] = &["address_alias"];
 
 #[derive(Debug, Clone, Copy, clap::ValueEnum)]
 pub enum AppEnv {
@@ -251,6 +89,7 @@ pub struct AppContext {
 
     pub app_packages: Arc<HashSet<AccountAddress>>,
     pub world_packages: Arc<HashSet<AccountAddress>>,
+    pub sui_packages: Arc<HashSet<AccountAddress>>,
 }
 
 impl AppContext {
@@ -265,12 +104,18 @@ impl AppContext {
             .filter_map(|s| AccountAddress::from_str(s).ok())
             .collect();
 
+        let sui_packages = Self::get_sui_package_strings()
+            .iter()
+            .filter_map(|s| AccountAddress::from_str(s).ok())
+            .collect();
+
         Self {
             env,
             tables: Arc::new(tables),
             fuels: Arc::new(fuels),
             app_packages: Arc::new(app_packages),
             world_packages: Arc::new(world_packages),
+            sui_packages: Arc::new(sui_packages),
         }
     }
 
@@ -325,7 +170,9 @@ impl AppContext {
 
         let has_app_call = txn_kind.iter_commands().any(|cmd| {
             if let Command::MoveCall(move_call) = cmd {
-                app_packages.iter().any(|pkg| *pkg == move_call.package)
+                let is_app_call = app_packages.iter().any(|pkg| *pkg == move_call.package);
+                let is_sui_call = Self::is_sui_module_call(&self, move_call);
+                is_app_call || is_sui_call
             } else {
                 false
             }
@@ -384,6 +231,64 @@ impl AppContext {
         self.world_packages.contains(&s_tag.address)
     }
 
+    pub fn is_sui_event(&self, event: &Event, module_name: &str, event_name: &str) -> bool {
+        let tag = &event.type_;
+
+        if tag.module.as_str() != module_name {
+            return false;
+        }
+
+        if tag.name.as_str() != event_name {
+            return false;
+        }
+
+        self.sui_packages.contains(&tag.address)
+    }
+
+    pub fn is_sui_object(&self, obj: &Object, module_name: &str, struct_name: &str) -> bool {
+        let Some(move_type) = obj.type_() else {
+            return false;
+        };
+
+        let Some(tag) = move_type.other() else {
+            return false;
+        };
+
+        if tag.module.as_str() != module_name {
+            return false;
+        }
+
+        if tag.name.as_str() != struct_name {
+            return false;
+        }
+
+        self.sui_packages.contains(&tag.address)
+    }
+
+    pub fn is_sui_struct(&self, tag: &TypeTag, module_name: &str, struct_name: &str) -> bool {
+        let TypeTag::Struct(s_tag) = tag else {
+            return false;
+        };
+
+        if s_tag.module.as_str() != module_name {
+            return false;
+        }
+
+        if s_tag.name.as_str() != struct_name {
+            return false;
+        }
+
+        self.sui_packages.contains(&s_tag.address)
+    }
+
+    fn is_sui_module_call(&self, move_call: &sui_types::transaction::ProgrammableMoveCall) -> bool {
+        if !SUI_MODULES.contains(&move_call.module.as_str()) {
+            return false;
+        }
+
+        self.sui_packages.contains(&move_call.package)
+    }
+
     fn get_app_package_strings(env: AppEnv) -> Vec<&'static str> {
         if let Some(app) = sandbox::app_packages() {
             return app.to_vec();
@@ -410,10 +315,15 @@ impl AppContext {
         world_packages.to_vec()
     }
 
+    fn get_sui_package_strings() -> Vec<&'static str> {
+        SUI_PACKAGES.to_vec()
+    }
+
     fn get_all_package_strings(env: AppEnv) -> Vec<&'static str> {
         if let (Some(app), Some(world)) = (sandbox::app_packages(), sandbox::world_packages()) {
             let mut all = app.to_vec();
             all.extend_from_slice(world);
+            all.extend_from_slice(SUI_PACKAGES);
             return all;
         }
 

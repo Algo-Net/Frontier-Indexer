@@ -4,6 +4,7 @@
 [pipelines]
 
 # System
+address_aliases = false # Address Aliases are opt-in as it can be a large dataset.
 transaction_digests = true
 
 # Access

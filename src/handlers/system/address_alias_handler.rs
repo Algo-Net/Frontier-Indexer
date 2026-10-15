@@ -135,6 +135,7 @@ impl Handler for AddressAliasHandler {
                 diesel::delete(address_aliases)
                     .filter(address.eq(entry.id.clone()))
                     .filter(alias.ne_all(aliases))
+                    .filter(checkpoint_updated.lt(entry.checkpoint_updated))
                     .execute(conn)
                     .await?;
             }

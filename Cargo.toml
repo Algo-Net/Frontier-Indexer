@@ -55,6 +55,8 @@ sui-transaction-builder = { git = "https://github.com/Algo-Net/sui.git", branch 
 sui-sdk-types = { git = "https://github.com/MystenLabs/sui-rust-sdk.git", rev = "2c5db7c2348a79582ac8ab2b03431899e4dd098d", features = [ "hash", "serde" ] }
 sui-crypto = { git = "https://github.com/MystenLabs/sui-rust-sdk.git", rev = "2c5db7c2348a79582ac8ab2b03431899e4dd098d", features = [ "ed25519", "secp256r1", "secp256k1", "passkey", "zklogin" ] }
 sui-rpc = { git = "https://github.com/MystenLabs/sui-rust-sdk.git", rev = "2c5db7c2348a79582ac8ab2b03431899e4dd098d", features = [ "unstable" ] }
+sui-graphql = { git = "https://github.com/MystenLabs/sui-rust-sdk.git", rev = "2c5db7c2348a79582ac8ab2b03431899e4dd098d" }
+sui-graphql-macros = { git = "https://github.com/MystenLabs/sui-rust-sdk.git", rev = "2c5db7c2348a79582ac8ab2b03431899e4dd098d" }
 
 # Database
 chrono = { version = "0.4.44", features = ["clock", "serde"] }

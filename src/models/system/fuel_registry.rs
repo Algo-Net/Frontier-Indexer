@@ -35,12 +35,21 @@ impl FuelRegistry {
     }
 
     pub fn add_fuel(&self, record: &StoredFuelConfig) {
-        let shared = Arc::new(record.clone());
+        let updated = Arc::new(record.clone());
 
-        self.cache
-            .write()
-            .unwrap()
-            .insert(shared.type_id.clone(), shared);
+        if let Some(current) = self.get_record(&updated.type_id) {
+            if updated.checkpoint_updated >= current.checkpoint_updated {
+                self.cache
+                    .write()
+                    .unwrap()
+                    .insert(updated.type_id.clone(), updated);
+            }
+        } else {
+            self.cache
+                .write()
+                .unwrap()
+                .insert(updated.type_id.clone(), updated);
+        };
     }
 
     pub fn get_record(&self, type_id: &i64) -> Option<Arc<StoredFuelConfig>> {

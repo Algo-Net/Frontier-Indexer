@@ -100,7 +100,7 @@ impl Freezable for StoredTurret {
     fn package_id(&self) -> String {
         self.package_id
             .clone()
-            .expect("Package_id was available on turret")
+            .expect("Package_id was not available on turret")
     }
 
     fn module_name(&self) -> String {

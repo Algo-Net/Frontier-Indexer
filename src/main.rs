@@ -177,7 +177,7 @@ async fn main() -> Result<(), anyhow::Error> {
                 local_ingestion_path: Some(
                     sandbox
                         .local_ingestion_path
-                        .context("--local-ingestion-path is required for localnet")?,
+                        .context("SANDBOX_INGESTION_PATH is required for localnet")?,
                 ),
                 ..Default::default()
             },

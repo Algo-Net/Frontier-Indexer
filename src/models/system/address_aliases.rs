@@ -11,7 +11,7 @@ use crate::schema::address_aliases;
 #[derive(Deserialize)]
 pub struct MoveAddressAliases {
     pub id: Address,
-    aliases: Vec<Address>,
+    pub aliases: Vec<Address>,
 }
 
 #[derive(Serialize, Debug, Clone, FieldCount)]
@@ -56,6 +56,18 @@ impl AddressAliases {
         Self {
             id,
             aliases,
+            checkpoint_updated,
+        }
+    }
+
+    pub fn from_parts(
+        owner: &Address,
+        aliases: &MoveAddressAliases,
+        checkpoint_updated: i64,
+    ) -> Self {
+        Self {
+            id: owner.to_hex(),
+            aliases: aliases.aliases.iter().map(|entry| entry.to_hex()).collect(),
             checkpoint_updated,
         }
     }

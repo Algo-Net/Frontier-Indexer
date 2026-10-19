@@ -88,16 +88,16 @@ impl StoredNetworkNode {
 
         let fuel_duration: i64 = match network_node.fuel.type_id {
             Some(type_id) => {
-                let stored = network_node.fuel.quantity as i64;
+                let stored = network_node.fuel.quantity as i128;
 
-                let burn_time = network_node.fuel.burn_rate_in_ms as i64;
+                let burn_time = network_node.fuel.burn_rate_in_ms as i128;
 
                 // let efficiency = Look up from the efficiency table else 10.
-                let efficiency = ctx.fuels.get_value(&(type_id as i64));
+                let efficiency = ctx.fuels.get_value(&(type_id as i64)) as i128;
 
-                let burn_start_time = network_node.fuel.burn_start_time as i64;
+                let burn_start_time = network_node.fuel.burn_start_time as i128;
 
-                let updated_at = network_node.fuel.last_updated as i64;
+                let updated_at = network_node.fuel.last_updated as i128;
 
                 let elapsed_time_ms = if updated_at > burn_start_time {
                     updated_at - burn_start_time
@@ -106,14 +106,12 @@ impl StoredNetworkNode {
                 };
 
                 let previous_cycle_elapsed_time =
-                    network_node.fuel.previous_cycle_elapsed_time as i64;
+                    network_node.fuel.previous_cycle_elapsed_time as i128;
 
-                let mut remaining_fuel = 0;
+                let mut remaining_fuel: i128 = 0;
 
                 if network_node.fuel.is_burning {
-                    if elapsed_time_ms > 0 {
-                        remaining_fuel = ((burn_time * efficiency) / 100) - elapsed_time_ms;
-                    }
+                    remaining_fuel = ((burn_time * efficiency) / 100) - elapsed_time_ms;
                 } else {
                     if previous_cycle_elapsed_time > 0 {
                         remaining_fuel =
@@ -121,7 +119,7 @@ impl StoredNetworkNode {
                     }
                 }
 
-                (((stored * burn_time * efficiency) / 100) + remaining_fuel) / 1000
+                ((((stored * burn_time * efficiency) / 100) + remaining_fuel) / 1000) as i64
             }
             None => 0,
         };

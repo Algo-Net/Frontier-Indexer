@@ -62,12 +62,27 @@ async fn main() -> Result<(), anyhow::Error> {
         tls_ca_cert_path,
     } = db_config;
 
-    let database_str = format!(
-        "postgres://{}:{}@{}:{}/{}?options=-csearch_path%3D{}",
-        db_user, db_password, db_host, db_port, db_name, db_schema
-    );
+    // let database_str = format!(
+    //     "postgres://{}:{}@{}:{}/{}?options=-csearch_path%3D{}",
+    //     db_user, db_password, db_host, db_port, db_name, db_schema
+    // );
 
-    let database_url = Url::parse(&database_str).expect("Failed to construct valid Database URL");
+    // let database_url = Url::parse(&database_str).expect("Failed to construct valid Database URL");
+
+    let mut database_url = Url::parse(&format!("postgres://{}:{}/{}", db_host, db_port, db_name))
+        .context("Failed to construct base Database URL")?;
+
+    database_url
+        .set_username(&db_user)
+        .map_err(|_| anyhow::anyhow!("Failed to set database username."))?;
+
+    database_url
+        .set_password(Some(&db_password))
+        .map_err(|_| anyhow::anyhow!("Failed to set database password."))?;
+
+    database_url
+        .query_pairs_mut()
+        .append_pair("options", &format!("-csearch_path={}", db_schema));
 
     let db_args = DbArgs {
         db_connection_pool_size,
@@ -286,6 +301,8 @@ async fn main() -> Result<(), anyhow::Error> {
         ingestion: ingestion_args,
         streaming: streaming_args,
     };
+
+    // system::upload_address_aliases(&mut conn).await?;
 
     let mut indexer = Indexer::new(
         store.clone(),

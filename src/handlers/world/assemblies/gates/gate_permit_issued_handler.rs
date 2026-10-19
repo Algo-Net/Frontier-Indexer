@@ -37,7 +37,7 @@ impl GatePermitIssuedHandler {
 
     fn is_gate_permit_issued(&self, event: &Event) -> bool {
         let module_name = "gate";
-        let event_name = "JumpPermitIssuedEvent ";
+        let event_name = "JumpPermitIssuedEvent";
         self.ctx.is_world_event(event, module_name, event_name)
     }
 }

@@ -312,10 +312,15 @@ impl Handler for FuelConfigHandler {
         }
 
         if !to_delete.is_empty() {
-            diesel::delete(fuel_config)
+            let ids = diesel::delete(fuel_config)
                 .filter(entry_object_id.eq_any(to_delete))
-                .execute(conn)
+                .returning(type_id)
+                .get_results(conn)
                 .await?;
+
+            for id in ids {
+                self.ctx.fuels.remove_fuel(id);
+            }
         }
 
         Ok(batch.len())

@@ -52,6 +52,10 @@ impl FuelRegistry {
         };
     }
 
+    pub fn remove_fuel(&self, key: i64) {
+        self.cache.write().unwrap().remove(&key);
+    }
+
     pub fn get_record(&self, type_id: &i64) -> Option<Arc<StoredFuelConfig>> {
         let cache = self.cache.read().unwrap();
         cache.get(type_id).cloned()

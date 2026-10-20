@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use serde::Serialize;
-use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::collections::hash_map::Entry;
 use std::sync::Arc;
 
 use diesel::prelude::*;
@@ -14,8 +14,8 @@ use sui_types::effects::{IDOperation, TransactionEffectsAPI};
 use sui_types::object::Object;
 use sui_types::storage::ObjectKey;
 
-use sui_indexer_alt_framework::pipeline::sequential::Handler;
 use sui_indexer_alt_framework::pipeline::Processor;
+use sui_indexer_alt_framework::pipeline::sequential::Handler;
 use sui_indexer_alt_framework::postgres::{Connection, Db};
 use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 
@@ -83,7 +83,7 @@ impl Processor for CharacterHandler {
                         };
 
                         if self.is_character(obj) {
-                            let character = StoredCharacter::from_object(obj, checkpoint_updated);
+                            let character = StoredCharacter::from_object(obj, checkpoint_updated)?;
                             results.push(CharacterAction::Upsert(character));
                         }
                     }

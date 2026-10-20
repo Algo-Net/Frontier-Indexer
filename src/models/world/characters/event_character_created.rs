@@ -1,3 +1,4 @@
+use anyhow::Context;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -32,14 +33,14 @@ pub struct StoredCharacterCreated {
 }
 
 impl StoredCharacterCreated {
-    pub fn from_event(event: &Event, meta: &EventMeta) -> Self {
+    pub fn from_event(event: &Event, meta: &EventMeta) -> anyhow::Result<Self> {
         let move_event: MoveCharacterCreated = bcs::from_bytes(&event.contents)
-            .expect("Failed to deserialize Character Created event");
+            .context("Failed to deserialize Character Created event")?;
 
         let occurred_at = DateTime::from_timestamp_millis(meta.checkpoint_timestamp_ms())
-            .expect("Failed to parse checkpoint timestamp into DateTime");
+            .context("Failed to parse checkpoint timestamp into DateTime")?;
 
-        Self {
+        Ok(Self {
             event_id: meta.event_digest(),
             occurred_at,
             id: move_event.character_id.to_hex(),
@@ -47,6 +48,6 @@ impl StoredCharacterCreated {
             tenant: move_event.key.tenant,
             owner_address: move_event.character_address.to_hex(),
             tribe_id: move_event.tribe_id.to_string(),
-        }
+        })
     }
 }

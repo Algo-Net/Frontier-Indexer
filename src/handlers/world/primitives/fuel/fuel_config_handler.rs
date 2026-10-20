@@ -208,7 +208,7 @@ impl Processor for FuelConfigHandler {
                                 obj,
                                 table.table_id.clone(),
                                 checkpoint_updated,
-                            );
+                            )?;
 
                             results.push(FuelConfigAction::Upsert(config));
                         }

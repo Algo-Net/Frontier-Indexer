@@ -5,8 +5,8 @@ use diesel_async::RunQueryDsl;
 
 use sui_types::event::Event;
 
-use sui_indexer_alt_framework::pipeline::sequential::Handler;
 use sui_indexer_alt_framework::pipeline::Processor;
+use sui_indexer_alt_framework::pipeline::sequential::Handler;
 use sui_indexer_alt_framework::postgres::{Connection, Db};
 use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 
@@ -71,7 +71,7 @@ impl Processor for FuelDeletedHandler {
                 }
 
                 let meta = base_meta.with_index(index);
-                let event = StoredFuelDeleted::from_event(&move_event, &meta);
+                let event = StoredFuelDeleted::from_event(&move_event, &meta)?;
                 results.push(event);
             }
         }

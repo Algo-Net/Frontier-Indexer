@@ -5,8 +5,8 @@ use diesel_async::RunQueryDsl;
 
 use sui_types::event::Event;
 
-use sui_indexer_alt_framework::pipeline::sequential::Handler;
 use sui_indexer_alt_framework::pipeline::Processor;
+use sui_indexer_alt_framework::pipeline::sequential::Handler;
 use sui_indexer_alt_framework::postgres::{Connection, Db};
 use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 
@@ -62,7 +62,7 @@ impl Processor for FuelEfficiencySetHandler {
             for (index, ev) in events.data.iter().enumerate() {
                 if self.is_fuel_efficiency_set(ev) {
                     let meta = base_meta.with_index(index);
-                    let event = StoredFuelEfficiencySet::from_event(ev, &meta);
+                    let event = StoredFuelEfficiencySet::from_event(ev, &meta)?;
                     results.push(event);
                 }
             }

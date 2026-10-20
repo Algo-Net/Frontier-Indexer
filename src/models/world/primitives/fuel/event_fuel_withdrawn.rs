@@ -1,3 +1,4 @@
+use anyhow::Context;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::Serialize;
@@ -23,11 +24,11 @@ pub struct StoredFuelWithdrawn {
 }
 
 impl StoredFuelWithdrawn {
-    pub fn from_event(event: &MoveFuelEvent, meta: &EventMeta) -> Self {
+    pub fn from_event(event: &MoveFuelEvent, meta: &EventMeta) -> anyhow::Result<Self> {
         let occurred_at = DateTime::from_timestamp_millis(meta.checkpoint_timestamp_ms())
-            .expect("Failed to parse checkpoint timestamp into DateTime");
+            .context("Failed to parse checkpoint timestamp into DateTime")?;
 
-        Self {
+        Ok(Self {
             event_id: meta.event_digest(),
             occurred_at,
             id: event.assembly_id.to_hex(),
@@ -36,6 +37,6 @@ impl StoredFuelWithdrawn {
             quantity: event.new_quantity as i64,
             quantity_old: event.old_quantity as i64,
             burning: event.is_burning,
-        }
+        })
     }
 }

@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS events_item_deposited (
-  event_id          VARCHAR(66)   NOT NULL,
+  event_id          VARCHAR(100)  NOT NULL,
   occurred_at       TIMESTAMPTZ   NOT NULL,
   item_id           VARCHAR(20)   NOT NULL,
   type_id           BIGINT        NOT NULL,

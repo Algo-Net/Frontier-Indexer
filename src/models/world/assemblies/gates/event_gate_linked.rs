@@ -1,3 +1,4 @@
+use anyhow::Context;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -31,20 +32,20 @@ pub struct StoredGateLinked {
 }
 
 impl StoredGateLinked {
-    pub fn from_event(event: &Event, meta: &EventMeta) -> Self {
+    pub fn from_event(event: &Event, meta: &EventMeta) -> anyhow::Result<Self> {
         let move_event: MoveGateLinked =
-            bcs::from_bytes(&event.contents).expect("Failed to deserialize Gate Linked event");
+            bcs::from_bytes(&event.contents).context("Failed to deserialize Gate Linked event")?;
 
         let occurred_at = DateTime::from_timestamp_millis(meta.checkpoint_timestamp_ms())
-            .expect("Failed to parse checkpoint timestamp into DateTime");
+            .context("Failed to parse checkpoint timestamp into DateTime")?;
 
-        Self {
+        Ok(Self {
             event_id: meta.event_digest(),
             occurred_at,
             departure_id: move_event.source_gate_id.to_hex(),
             departure_item_id: move_event.source_gate_key.item_id.to_string(),
             destination_id: move_event.destination_gate_id.to_hex(),
             destination_item_id: move_event.destination_gate_key.item_id.to_string(),
-        }
+        })
     }
 }

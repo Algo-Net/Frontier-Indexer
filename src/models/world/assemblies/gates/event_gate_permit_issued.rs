@@ -1,3 +1,4 @@
+use anyhow::Context;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -7,8 +8,8 @@ use sui_sdk_types::Address;
 use sui_types::event::Event;
 
 use crate::handlers::EventMeta;
-use crate::models::world::MoveTenantItemId;
 use crate::models::MoveTypeName;
+use crate::models::world::MoveTenantItemId;
 use crate::schema::events_gate_permit_issued;
 
 #[derive(Deserialize)]
@@ -46,21 +47,21 @@ pub struct StoredGatePermitIssued {
 }
 
 impl StoredGatePermitIssued {
-    pub fn from_event(event: &Event, meta: &EventMeta) -> Self {
+    pub fn from_event(event: &Event, meta: &EventMeta) -> anyhow::Result<Self> {
         let move_event: MoveGatePermitIssued = bcs::from_bytes(&event.contents)
-            .expect("Failed to deserialize Gate Permit Issued event");
+            .context("Failed to deserialize Gate Permit Issued event")?;
 
         let occurred_at = DateTime::from_timestamp_millis(meta.checkpoint_timestamp_ms())
-            .expect("Failed to parse checkpoint timestamp into DateTime");
+            .context("Failed to parse checkpoint timestamp into DateTime")?;
 
         let link_hash = format!("0x{:0>64}", hex::encode(&move_event.route_hash));
 
-        let (package_id, module_name, struct_name) = move_event.extension_type.to_components();
+        let (package_id, module_name, struct_name) = move_event.extension_type.to_components()?;
 
         let expires_at = DateTime::from_timestamp_millis(move_event.expires_at_timestamp_ms as i64)
-            .expect("Failed to parse checkpoint timestamp into DateTime");
+            .context("Failed to parse checkpoint timestamp into DateTime")?;
 
-        Self {
+        Ok(Self {
             event_id: meta.event_digest(),
             occurred_at,
             id: move_event.jump_permit_id.to_hex(),
@@ -75,6 +76,6 @@ impl StoredGatePermitIssued {
             module_name,
             struct_name,
             expires_at,
-        }
+        })
     }
 }

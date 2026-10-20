@@ -211,7 +211,7 @@ impl Processor for GateConfigHandler {
                                 obj,
                                 table.table_id.clone(),
                                 checkpoint_updated,
-                            );
+                            )?;
 
                             results.push(GateConfigAction::Upsert(config));
                         }

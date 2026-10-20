@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use serde::Serialize;
-use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::collections::hash_map::Entry;
 use std::sync::Arc;
 
 use diesel::prelude::*;
@@ -15,8 +15,8 @@ use sui_types::object::Object;
 use sui_types::object::Owner;
 use sui_types::storage::ObjectKey;
 
-use sui_indexer_alt_framework::pipeline::sequential::Handler;
 use sui_indexer_alt_framework::pipeline::Processor;
+use sui_indexer_alt_framework::pipeline::sequential::Handler;
 use sui_indexer_alt_framework::postgres::{Connection, Db};
 use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 
@@ -132,7 +132,7 @@ impl Processor for GateHandler {
                         };
 
                         if self.is_gate(obj) {
-                            let gate = StoredGate::from_object(obj, checkpoint_updated);
+                            let gate = StoredGate::from_object(obj, checkpoint_updated)?;
                             gates.insert(gate.id.clone(), Arc::new(gate.clone()));
                             results.push(GateAction::Upsert(gate));
                         }
@@ -150,7 +150,7 @@ impl Processor for GateHandler {
 
         for obj in freezes {
             if let Some(gate) = self.get_extension_freeze_gate(obj, &gates) {
-                let freeze = StoredExtensionFreeze::from_object(obj, gate);
+                let freeze = StoredExtensionFreeze::from_object(obj, gate)?;
                 results.push(GateAction::Freeze(freeze));
             }
         }

@@ -1,3 +1,4 @@
+use anyhow::Context;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -45,17 +46,21 @@ pub struct StoredKillmail {
 }
 
 impl StoredKillmail {
-    pub fn from_object(obj: &Object) -> Self {
-        let move_obj = obj.data.try_as_move().expect("Object is not a Move object");
+    pub fn from_object(obj: &Object) -> anyhow::Result<Self> {
+        let move_obj = obj
+            .data
+            .try_as_move()
+            .context("Object is not a Move object")?;
+
         let bytes = move_obj.contents();
 
         let killmail: MoveKillmail =
-            bcs::from_bytes(bytes).expect("Failed to deserialize Killmail object");
+            bcs::from_bytes(bytes).context("Failed to deserialize Killmail object")?;
 
         let occurred_at = DateTime::from_timestamp(killmail.kill_timestamp as i64, 0)
-            .expect("Failed to parse killmail timestamp into DateTime");
+            .context("Failed to parse killmail timestamp into DateTime")?;
 
-        Self {
+        Ok(Self {
             id: killmail.id.to_hex(),
             kill_id: killmail.key.item_id.to_string(),
             tenant: killmail.key.tenant,
@@ -65,6 +70,6 @@ impl StoredKillmail {
             killer_id: killmail.killer_id.item_id.to_string(),
             victim_id: killmail.victim_id.item_id.to_string(),
             reporter_id: killmail.reported_by_character_id.item_id.to_string(),
-        }
+        })
     }
 }

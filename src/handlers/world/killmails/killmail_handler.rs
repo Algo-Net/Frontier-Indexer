@@ -7,8 +7,8 @@ use sui_types::effects::{IDOperation, TransactionEffectsAPI};
 use sui_types::object::Object;
 use sui_types::storage::ObjectKey;
 
-use sui_indexer_alt_framework::pipeline::sequential::Handler;
 use sui_indexer_alt_framework::pipeline::Processor;
+use sui_indexer_alt_framework::pipeline::sequential::Handler;
 use sui_indexer_alt_framework::postgres::{Connection, Db};
 use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 
@@ -69,7 +69,7 @@ impl Processor for KillmailHandler {
                         };
 
                         if self.is_killmail(obj) {
-                            let killmail = StoredKillmail::from_object(obj);
+                            let killmail = StoredKillmail::from_object(obj)?;
                             results.push(killmail);
                         }
                     }

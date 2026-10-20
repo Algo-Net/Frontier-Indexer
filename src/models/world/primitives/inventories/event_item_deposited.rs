@@ -89,7 +89,7 @@ impl StoredItemDeposited {
             assembly_item_id: move_event.assembly_key.item_id.to_string(),
             character_id: move_event.character_id.to_hex(),
             character_item_id: move_event.character_key.item_id.to_string(),
-            inventory_id: Option::Some(move_event.inventory_key.to_string()),
+            inventory_id: Option::Some(move_event.inventory_key.to_hex()),
         })
     }
 }

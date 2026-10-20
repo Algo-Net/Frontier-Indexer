@@ -47,7 +47,7 @@ impl StoredEnergyConfig {
             table_id,
             type_id: entry.name as i64,
             energy_cost: entry.value as i64,
-            entry_object_id: obj.id().to_string(),
+            entry_object_id: obj.id().to_canonical_string(true),
             checkpoint_updated,
         })
     }

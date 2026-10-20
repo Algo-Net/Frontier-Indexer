@@ -1,3 +1,4 @@
+use anyhow::Context;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -7,8 +8,8 @@ use sui_sdk_types::Address;
 use sui_types::event::Event;
 
 use crate::handlers::EventMeta;
-use crate::models::world::MoveTenantItemId;
 use crate::models::MoveTypeName;
+use crate::models::world::MoveTenantItemId;
 use crate::schema::events_storage_unit_extension_revoked;
 
 #[derive(Deserialize)]
@@ -33,16 +34,17 @@ pub struct StoredStorageUnitExtensionRevoked {
 }
 
 impl StoredStorageUnitExtensionRevoked {
-    pub fn from_event(event: &Event, meta: &EventMeta) -> Self {
+    pub fn from_event(event: &Event, meta: &EventMeta) -> anyhow::Result<Self> {
         let move_event: MoveStorageUnitExtensionRevoked = bcs::from_bytes(&event.contents)
-            .expect("Failed to deserialize Storage Unit Extension Revoked event");
+            .context("Failed to deserialize Storage Unit Extension Revoked event")?;
 
         let occurred_at = DateTime::from_timestamp_millis(meta.checkpoint_timestamp_ms())
-            .expect("Failed to parse checkpoint timestamp into DateTime");
+            .context("Failed to parse checkpoint timestamp into DateTime")?;
 
-        let (package_id, module_name, struct_name) = move_event.revoked_extension.to_components();
+        let (package_id, module_name, struct_name) =
+            move_event.revoked_extension.to_components()?;
 
-        Self {
+        Ok(Self {
             event_id: meta.event_digest(),
             occurred_at,
             id: move_event.assembly_id.to_hex(),
@@ -50,6 +52,6 @@ impl StoredStorageUnitExtensionRevoked {
             package_id,
             module_name,
             struct_name,
-        }
+        })
     }
 }

@@ -1,3 +1,4 @@
+use anyhow::Context;
 use serde::{Deserialize, Serialize};
 
 use diesel::prelude::*;
@@ -6,12 +7,12 @@ use sui_indexer_alt_framework::FieldCount;
 use sui_sdk_types::Address;
 use sui_types::object::Object;
 
+use crate::models::Freezable;
+use crate::models::MoveTypeName;
 use crate::models::world::MoveAssemblyStatus;
 use crate::models::world::MoveLocation;
 use crate::models::world::MoveMetadata;
 use crate::models::world::MoveTenantItemId;
-use crate::models::Freezable;
-use crate::models::MoveTypeName;
 use crate::schema::storage_units;
 
 #[derive(Deserialize)]
@@ -50,12 +51,16 @@ pub struct StoredStorageUnit {
 }
 
 impl StoredStorageUnit {
-    pub fn from_object(obj: &Object, checkpoint_updated: i64) -> Self {
-        let move_obj = obj.data.try_as_move().expect("Object is not a Move object");
+    pub fn from_object(obj: &Object, checkpoint_updated: i64) -> anyhow::Result<Self> {
+        let move_obj = obj
+            .data
+            .try_as_move()
+            .context("Object is not a Move object")?;
+
         let bytes = move_obj.contents();
 
         let storage_unit: MoveStorageUnit =
-            bcs::from_bytes(bytes).expect("Failed to deserialize Storage Unit object");
+            bcs::from_bytes(bytes).context("Failed to deserialize Storage Unit object")?;
 
         let location = format!(
             "0x{:0>64}",
@@ -77,13 +82,13 @@ impl StoredStorageUnit {
 
         let (package_id, module_name, struct_name) = match storage_unit.extension {
             Some(extension) => {
-                let (package_id, module_name, struct_name) = extension.to_components();
+                let (package_id, module_name, struct_name) = extension.to_components()?;
                 (Some(package_id), Some(module_name), Some(struct_name))
             }
             None => (None, None, None),
         };
 
-        Self {
+        Ok(Self {
             id: storage_unit.id.to_hex(),
             item_id: storage_unit.key.item_id.to_string(),
             tenant: storage_unit.key.tenant,
@@ -100,7 +105,7 @@ impl StoredStorageUnit {
             module_name,
             struct_name,
             checkpoint_updated,
-        }
+        })
     }
 }
 
@@ -109,21 +114,21 @@ impl Freezable for StoredStorageUnit {
         self.id.clone()
     }
 
-    fn package_id(&self) -> String {
+    fn package_id(&self) -> anyhow::Result<String> {
         self.package_id
             .clone()
-            .expect("Package_id was not available on storage unit")
+            .context("Package_id was not available on storage unit")
     }
 
-    fn module_name(&self) -> String {
+    fn module_name(&self) -> anyhow::Result<String> {
         self.module_name
             .clone()
-            .expect("Module_name was not available on storage unit")
+            .context("Module_name was not available on storage unit")
     }
 
-    fn struct_name(&self) -> String {
+    fn struct_name(&self) -> anyhow::Result<String> {
         self.struct_name
             .clone()
-            .expect("Struct_name was not available on storage unit")
+            .context("Struct_name was not available on storage unit")
     }
 }

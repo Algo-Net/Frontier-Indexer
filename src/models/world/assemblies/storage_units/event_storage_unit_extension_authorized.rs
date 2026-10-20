@@ -1,3 +1,4 @@
+use anyhow::Context;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -7,8 +8,8 @@ use sui_sdk_types::Address;
 use sui_types::event::Event;
 
 use crate::handlers::EventMeta;
-use crate::models::world::MoveTenantItemId;
 use crate::models::MoveTypeName;
+use crate::models::world::MoveTenantItemId;
 use crate::schema::events_storage_unit_extension_authorized;
 
 #[derive(Deserialize)]
@@ -37,25 +38,25 @@ pub struct StoredStorageUnitExtensionAuthorized {
 }
 
 impl StoredStorageUnitExtensionAuthorized {
-    pub fn from_event(event: &Event, meta: &EventMeta) -> Self {
+    pub fn from_event(event: &Event, meta: &EventMeta) -> anyhow::Result<Self> {
         let move_event: MoveStorageUnitExtensionAuthorized = bcs::from_bytes(&event.contents)
-            .expect("Failed to deserialize Storage Unit Extension Authorized event");
+            .context("Failed to deserialize Storage Unit Extension Authorized event")?;
 
         let occurred_at = DateTime::from_timestamp_millis(meta.checkpoint_timestamp_ms())
-            .expect("Failed to parse checkpoint timestamp into DateTime");
+            .context("Failed to parse checkpoint timestamp into DateTime")?;
 
-        let (package_id, module_name, struct_name) = move_event.extension_type.to_components();
+        let (package_id, module_name, struct_name) = move_event.extension_type.to_components()?;
 
         let (package_id_old, module_name_old, struct_name_old) = match move_event.previous_extension
         {
             Some(extension) => {
-                let (package_id, module_name, struct_name) = extension.to_components();
+                let (package_id, module_name, struct_name) = extension.to_components()?;
                 (Some(package_id), Some(module_name), Some(struct_name))
             }
             None => (None, None, None),
         };
 
-        Self {
+        Ok(Self {
             event_id: meta.event_digest(),
             occurred_at,
             id: move_event.assembly_id.to_hex(),
@@ -66,6 +67,6 @@ impl StoredStorageUnitExtensionAuthorized {
             package_id_old,
             module_name_old,
             struct_name_old,
-        }
+        })
     }
 }

@@ -1,3 +1,4 @@
+use anyhow::Context;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -62,12 +63,20 @@ pub struct StoredNetworkNode {
 }
 
 impl StoredNetworkNode {
-    pub fn from_object(ctx: &AppContext, obj: &Object, checkpoint_updated: i64) -> Self {
-        let move_obj = obj.data.try_as_move().expect("Object is not a Move object");
+    pub fn from_object(
+        ctx: &AppContext,
+        obj: &Object,
+        checkpoint_updated: i64,
+    ) -> anyhow::Result<Self> {
+        let move_obj = obj
+            .data
+            .try_as_move()
+            .context("Object is not a Move object")?;
+
         let bytes = move_obj.contents();
 
         let network_node: MoveNetworkNode =
-            bcs::from_bytes(bytes).expect("Failed fo deserialize Network Node object");
+            bcs::from_bytes(bytes).context("Failed fo deserialize Network Node object")?;
 
         let location = format!(
             "0x{:0>64}",
@@ -81,10 +90,10 @@ impl StoredNetworkNode {
             .collect();
 
         let burn_start = DateTime::from_timestamp_millis(network_node.fuel.burn_start_time as i64)
-            .expect("Failed to parse burn start timestamp into DateTime");
+            .context("Failed to parse burn start timestamp into DateTime")?;
 
         let burn_updated = DateTime::from_timestamp_millis(network_node.fuel.last_updated as i64)
-            .expect("Failed to parse burn updated timestamp into DateTime");
+            .context("Failed to parse burn updated timestamp into DateTime")?;
 
         let fuel_duration: i64 = match network_node.fuel.type_id {
             Some(type_id) => {
@@ -136,7 +145,7 @@ impl StoredNetworkNode {
             .map(|meta| (Some(meta.name), Some(meta.description), Some(meta.url)))
             .unwrap_or_default();
 
-        Self {
+        Ok(Self {
             id: network_node.id.to_hex(),
             item_id: network_node.key.item_id.to_string(),
             tenant: network_node.key.tenant,
@@ -162,6 +171,6 @@ impl StoredNetworkNode {
             description,
             url,
             checkpoint_updated,
-        }
+        })
     }
 }

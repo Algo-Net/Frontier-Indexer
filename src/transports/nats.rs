@@ -61,7 +61,7 @@ impl Routing<StoredOwnerCapCreated> for NatsTransport {
         _pipeline: &'static str,
         item: &StoredOwnerCapCreated,
     ) -> anyhow::Result<()> {
-        let routing = format!("{}.{}.{}", "owner_cap", item.object_id, "created");
+        let routing = format!("{}.{}.{}", "owner_cap", item.id, "created");
         self.send(routing, item).await
     }
 }
@@ -71,7 +71,7 @@ impl Routing<OwnerCapAction> for NatsTransport {
     async fn send(&self, _pipeline: &'static str, action: &OwnerCapAction) -> anyhow::Result<()> {
         match action {
             OwnerCapAction::Upsert(item) => {
-                let routing = format!("{}.{}.{}", "owner_cap", item.object_id, "updated");
+                let routing = format!("{}.{}.{}", "owner_cap", item.id, "updated");
                 self.send(routing, item).await
             }
             OwnerCapAction::Delete(id_str) => {

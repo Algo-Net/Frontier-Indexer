@@ -34,33 +34,36 @@ impl<I: Send + Sync> Dispatchable<I> for HashMap<String, I> {
 }
 
 pub struct Emitter<I: Serialize + Send + Sync + 'static> {
-    tx: Option<mpsc::Sender<(&'static str, Vec<I>)>>,
+    sender: Option<mpsc::Sender<(&'static str, Vec<I>)>>,
 }
 
 impl<I: Serialize + Clone + Send + Sync + 'static> Emitter<I> {
     pub fn new(transports: Vec<Arc<dyn Transport<I>>>) -> Self {
         if transports.is_empty() {
-            return Self { tx: None };
+            return Self { sender: None };
         }
 
-        let (tx, mut rx) = mpsc::channel::<(&'static str, Vec<I>)>(EMITTER_QUEUE_CAPACITY);
+        let (sender, mut receiver) =
+            mpsc::channel::<(&'static str, Vec<I>)>(EMITTER_QUEUE_CAPACITY);
 
         tokio::spawn(async move {
-            while let Some((pipeline, items)) = rx.recv().await {
+            while let Some((pipeline, items)) = receiver.recv().await {
                 for item in &items {
                     Self::dispatch_entry(&transports, pipeline, item).await;
                 }
             }
         });
 
-        Self { tx: Some(tx) }
+        Self {
+            sender: Some(sender),
+        }
     }
 
     pub fn dispatch<B>(&self, pipeline: &'static str, batch: &B)
     where
         B: Dispatchable<I>,
     {
-        let Some(tx) = &self.tx else {
+        let Some(tx) = &self.sender else {
             return;
         };
 
@@ -84,7 +87,15 @@ impl<I: Serialize + Clone + Send + Sync + 'static> Emitter<I> {
         pipeline: &'static str,
         item: &I,
     ) {
-        let futs: Vec<_> = transports.iter().map(|t| t.send(pipeline, item)).collect();
+        let futs: Vec<_> = transports
+            .iter()
+            .map(|transport| {
+                tokio::time::timeout(
+                    tokio::time::Duration::from_secs(5),
+                    transport.send(pipeline, item),
+                )
+            })
+            .collect();
 
         let results = join_all(futs).await;
 

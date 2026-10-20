@@ -1,3 +1,4 @@
+use anyhow::Context;
 use async_trait::async_trait;
 use std::sync::Arc;
 
@@ -5,8 +6,8 @@ use diesel_async::RunQueryDsl;
 
 use sui_types::event::Event;
 
-use sui_indexer_alt_framework::pipeline::sequential::Handler;
 use sui_indexer_alt_framework::pipeline::Processor;
+use sui_indexer_alt_framework::pipeline::sequential::Handler;
 use sui_indexer_alt_framework::postgres::{Connection, Db};
 use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 
@@ -64,14 +65,14 @@ impl Processor for FuelDeletedHandler {
                 }
 
                 let move_event: MoveFuelEvent =
-                    bcs::from_bytes(&ev.contents).expect("Failed to deserialize Fuel event");
+                    bcs::from_bytes(&ev.contents).context("Failed to deserialize Fuel event")?;
 
                 if !matches!(move_event.action, MoveFuelAction::Deleted) {
                     continue;
                 }
 
                 let meta = base_meta.with_index(index);
-                let event = StoredFuelDeleted::from_event(&move_event, &meta);
+                let event = StoredFuelDeleted::from_event(&move_event, &meta)?;
                 results.push(event);
             }
         }

@@ -1,1 +1,1 @@
-DELETE TABLE IF EXISTS system_table_registry;
+DROP TABLE IF EXISTS system_table_registry;

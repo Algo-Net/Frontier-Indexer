@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use serde::Serialize;
-use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::collections::hash_map::Entry;
 use std::sync::Arc;
 
 use diesel::prelude::*;
@@ -14,8 +14,8 @@ use sui_types::effects::{IDOperation, TransactionEffectsAPI};
 use sui_types::object::Object;
 use sui_types::storage::ObjectKey;
 
-use sui_indexer_alt_framework::pipeline::sequential::Handler;
 use sui_indexer_alt_framework::pipeline::Processor;
+use sui_indexer_alt_framework::pipeline::sequential::Handler;
 use sui_indexer_alt_framework::postgres::{Connection, Db};
 use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 
@@ -68,7 +68,7 @@ impl Processor for OwnerCapHandler {
             }
 
             for change in &tx.effects.object_changes() {
-                let id = change.id;
+                let object_id = change.id;
 
                 match change.id_operation {
                     IDOperation::Created | IDOperation::None => {
@@ -76,19 +76,31 @@ impl Processor for OwnerCapHandler {
                             continue;
                         };
 
-                        let key = ObjectKey(id, version);
+                        let key = ObjectKey(object_id, version);
 
                         let Some(obj) = checkpoint.object_set.get(&key) else {
                             continue;
                         };
 
                         if self.is_owner_cap(obj) {
-                            let owner_cap = StoredOwnerCap::from_object(obj, checkpoint_updated);
+                            let owner_cap = StoredOwnerCap::from_object(obj, checkpoint_updated)?;
                             results.push(OwnerCapAction::Upsert(owner_cap));
                         }
                     }
                     IDOperation::Deleted => {
-                        results.push(OwnerCapAction::Delete(id.to_string()));
+                        let Some(version) = change.input_version else {
+                            continue;
+                        };
+
+                        let key = ObjectKey(object_id, version);
+
+                        let Some(obj) = checkpoint.object_set.get(&key) else {
+                            continue;
+                        };
+
+                        if self.is_owner_cap(obj) {
+                            results.push(OwnerCapAction::Delete(object_id.to_string()));
+                        }
                     }
                 }
             }

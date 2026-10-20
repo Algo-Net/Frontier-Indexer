@@ -19,13 +19,13 @@ pub struct StoredExtensionFreeze {
 }
 
 impl StoredExtensionFreeze {
-    pub fn from_object<T: Freezable>(obj: &Object, parent: Arc<T>) -> Self {
-        Self {
+    pub fn from_object<T: Freezable>(obj: &Object, parent: Arc<T>) -> anyhow::Result<Self> {
+        Ok(Self {
             id: obj.id().to_canonical_string(true),
             owner_id: parent.id(),
-            package_id: parent.package_id(),
-            module_name: parent.module_name(),
-            struct_name: parent.struct_name(),
-        }
+            package_id: parent.package_id()?,
+            module_name: parent.module_name()?,
+            struct_name: parent.struct_name()?,
+        })
     }
 }

@@ -209,8 +209,8 @@ pub struct Ingestion {
     pub streaming_backoff_initial_batch_size: usize,
 
     #[arg(
-        id = "streaming_backoff_max_match_size",
-        long = "streaming_backoff_max_match_size",
+        id = "streaming_backoff_max_batch_size",
+        long = "streaming_backoff_max_batch_size",
         env = "STREAMING_BACKOFF_MAX_BATCH_SIZE",
         default_value_t = 10000
     )]
@@ -367,7 +367,7 @@ pub struct SandboxArgs {
     pub world_packages: Vec<String>,
 
     #[clap(
-        id = "sandbox_ingention_path",
+        id = "sandbox_ingestion_path",
         long = "sandbox_ingestion_path",
         env = "SANDBOX_INGESTION_PATH"
     )]

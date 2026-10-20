@@ -323,7 +323,6 @@ impl AppContext {
         if let (Some(app), Some(world)) = (sandbox::app_packages(), sandbox::world_packages()) {
             let mut all = app.to_vec();
             all.extend_from_slice(world);
-            all.extend_from_slice(SUI_PACKAGES);
             return all;
         }
 

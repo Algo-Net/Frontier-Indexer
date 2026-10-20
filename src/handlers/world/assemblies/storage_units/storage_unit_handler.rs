@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use serde::Serialize;
-use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::collections::hash_map::Entry;
 use std::sync::Arc;
 
 use diesel::prelude::*;
@@ -15,8 +15,8 @@ use sui_types::object::Object;
 use sui_types::object::Owner;
 use sui_types::storage::ObjectKey;
 
-use sui_indexer_alt_framework::pipeline::sequential::Handler;
 use sui_indexer_alt_framework::pipeline::Processor;
+use sui_indexer_alt_framework::pipeline::sequential::Handler;
 use sui_indexer_alt_framework::postgres::{Connection, Db};
 use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 
@@ -133,7 +133,7 @@ impl Processor for StorageUnitHandler {
 
                         if self.is_storage_unit(obj) {
                             let storage_unit =
-                                StoredStorageUnit::from_object(obj, checkpoint_updated);
+                                StoredStorageUnit::from_object(obj, checkpoint_updated)?;
                             storage_units
                                 .insert(storage_unit.id.clone(), Arc::new(storage_unit.clone()));
                             results.push(StorageUnitAction::Upsert(storage_unit));
@@ -144,7 +144,19 @@ impl Processor for StorageUnitHandler {
                         }
                     }
                     IDOperation::Deleted => {
-                        results.push(StorageUnitAction::Delete(object_id.to_string()));
+                        let Some(version) = change.input_version else {
+                            continue;
+                        };
+
+                        let key = ObjectKey(object_id, version);
+
+                        let Some(obj) = checkpoint.object_set.get(&key) else {
+                            continue;
+                        };
+
+                        if self.is_storage_unit(obj) {
+                            results.push(StorageUnitAction::Delete(object_id.to_string()));
+                        }
                     }
                 }
             }
@@ -153,7 +165,7 @@ impl Processor for StorageUnitHandler {
         for obj in freezes {
             if let Some(storage_unit) = self.get_extension_freeze_storage_unit(obj, &storage_units)
             {
-                let freeze = StoredExtensionFreeze::from_object(obj, storage_unit);
+                let freeze = StoredExtensionFreeze::from_object(obj, storage_unit)?;
                 results.push(StorageUnitAction::Freeze(freeze));
             }
         }

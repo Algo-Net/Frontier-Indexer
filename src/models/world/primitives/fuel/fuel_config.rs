@@ -1,3 +1,4 @@
+use anyhow::Context;
 use serde::{Deserialize, Serialize};
 
 use diesel::prelude::*;
@@ -28,19 +29,27 @@ pub struct StoredFuelConfig {
 }
 
 impl StoredFuelConfig {
-    pub fn from_object(obj: &Object, table_id: String, checkpoint_updated: i64) -> Self {
-        let move_obj = obj.data.try_as_move().expect("Object is not a Move object");
+    pub fn from_object(
+        obj: &Object,
+        table_id: String,
+        checkpoint_updated: i64,
+    ) -> anyhow::Result<Self> {
+        let move_obj = obj
+            .data
+            .try_as_move()
+            .context("Object is not a Move object")?;
+
         let bytes = move_obj.contents();
 
         let entry: Field<u64, u64> =
-            bcs::from_bytes(bytes).expect("Failed to deserialize Fuel Config object");
+            bcs::from_bytes(bytes).context("Failed to deserialize Fuel Config object")?;
 
-        Self {
+        Ok(Self {
             table_id,
             type_id: entry.name as i64,
             efficiency: entry.value as i64,
-            entry_object_id: obj.id().to_string(),
+            entry_object_id: obj.id().to_canonical_string(true),
             checkpoint_updated,
-        }
+        })
     }
 }

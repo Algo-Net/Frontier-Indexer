@@ -1,3 +1,4 @@
+use anyhow::Context;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -26,18 +27,18 @@ pub struct StoredOwnerCapCreated {
 }
 
 impl StoredOwnerCapCreated {
-    pub fn from_event(event: &Event, meta: &EventMeta) -> Self {
-        let move_event: MoveOwnerCapCreated =
-            bcs::from_bytes(&event.contents).expect("Failed to deserialize OwnerCap Created event");
+    pub fn from_event(event: &Event, meta: &EventMeta) -> anyhow::Result<Self> {
+        let move_event: MoveOwnerCapCreated = bcs::from_bytes(&event.contents)
+            .context("Failed to deserialize OwnerCap Created event")?;
 
         let occurred_at = DateTime::from_timestamp_millis(meta.checkpoint_timestamp_ms())
-            .expect("Failed to parse checkpoint timestamp into DateTime");
+            .context("Failed to parse checkpoint timestamp into DateTime")?;
 
-        Self {
+        Ok(Self {
             event_id: meta.event_digest(),
             occurred_at,
             id: move_event.owner_cap_id.to_hex(),
             object_id: move_event.authorized_object_id.to_hex(),
-        }
+        })
     }
 }

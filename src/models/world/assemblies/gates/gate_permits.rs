@@ -1,3 +1,4 @@
+use anyhow::Context;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -26,23 +27,27 @@ pub struct StoredGatePermit {
 }
 
 impl StoredGatePermit {
-    pub fn from_object(obj: &Object) -> Self {
-        let move_obj = obj.data.try_as_move().expect("Object is not a Move object");
+    pub fn from_object(obj: &Object) -> anyhow::Result<Self> {
+        let move_obj = obj
+            .data
+            .try_as_move()
+            .context("Object is not a Move object")?;
+
         let bytes = move_obj.contents();
 
         let permit: MoveGatePermit =
-            bcs::from_bytes(bytes).expect("Failed to deserialize Gate Permit object");
+            bcs::from_bytes(bytes).context("Failed to deserialize Gate Permit object")?;
 
         let link_hash = format!("0x{:0>64}", hex::encode(&permit.route_hash));
 
         let expires_at = DateTime::from_timestamp_millis(permit.expires_at_timestamp_ms as i64)
-            .expect("Failed to parse checkpoint timestamp into DateTime");
+            .context("Failed to parse checkpoint timestamp into DateTime")?;
 
-        Self {
+        Ok(Self {
             id: permit.id.to_hex(),
             character_id: permit.character_id.to_hex(),
             link_hash,
             expires_at,
-        }
+        })
     }
 }

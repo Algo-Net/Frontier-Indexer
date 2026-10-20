@@ -13,7 +13,6 @@ use crate::transports::Transport;
 use crate::AppContext;
 
 pub struct TransactionDigestHandler {
-    // ctx: AppContext,
     emitter: Arc<Emitter<StoredTransactionDigest>>,
 }
 
@@ -25,7 +24,6 @@ impl TransactionDigestHandler {
         let emitter = Emitter::new(transports);
 
         Self {
-            // ctx: ctx.clone(),
             emitter: Arc::new(emitter),
         }
     }

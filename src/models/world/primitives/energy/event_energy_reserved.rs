@@ -1,3 +1,4 @@
+use anyhow::Context;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -30,20 +31,20 @@ pub struct StoredEnergyReserved {
 }
 
 impl StoredEnergyReserved {
-    pub fn from_event(event: &Event, meta: &EventMeta) -> Self {
-        let move_event: MoveEnergyReserved =
-            bcs::from_bytes(&event.contents).expect("Failed to deserialize Energy Reserved event");
+    pub fn from_event(event: &Event, meta: &EventMeta) -> anyhow::Result<Self> {
+        let move_event: MoveEnergyReserved = bcs::from_bytes(&event.contents)
+            .context("Failed to deserialize Energy Reserved event")?;
 
         let occurred_at = DateTime::from_timestamp_millis(meta.checkpoint_timestamp_ms())
-            .expect("Failed to parse checkpoint timestamp into DateTime");
+            .context("Failed to parse checkpoint timestamp into DateTime")?;
 
-        Self {
+        Ok(Self {
             event_id: meta.event_digest(),
             occurred_at,
             id: move_event.energy_source_id.to_hex(),
             type_id: move_event.assembly_type_id as i64,
             reserved: move_event.energy_reserved as i64,
             reserved_total: move_event.total_reserved_energy as i64,
-        }
+        })
     }
 }

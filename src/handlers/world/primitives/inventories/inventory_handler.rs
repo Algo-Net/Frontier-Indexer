@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use serde::Serialize;
-use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::collections::hash_map::Entry;
 use std::sync::Arc;
 
 use diesel::prelude::*;
@@ -10,14 +10,14 @@ use diesel::upsert::excluded;
 use diesel_async::RunQueryDsl;
 
 use sui_pg_db::FieldCount;
+use sui_types::TypeTag;
 use sui_types::effects::{IDOperation, TransactionEffectsAPI};
 use sui_types::object::Object;
 use sui_types::object::Owner;
 use sui_types::storage::ObjectKey;
-use sui_types::TypeTag;
 
-use sui_indexer_alt_framework::pipeline::sequential::Handler;
 use sui_indexer_alt_framework::pipeline::Processor;
+use sui_indexer_alt_framework::pipeline::sequential::Handler;
 use sui_indexer_alt_framework::postgres::{Connection, Db};
 use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 
@@ -116,12 +116,24 @@ impl Processor for InventoryHandler {
 
                             let parent_id = owner.to_string();
                             let inventory =
-                                StoredInventory::from_object(obj, parent_id, checkpoint_updated);
+                                StoredInventory::from_object(obj, parent_id, checkpoint_updated)?;
                             results.push(InventoryAction::Upsert(inventory));
                         }
                     }
                     IDOperation::Deleted => {
-                        results.push(InventoryAction::Delete(object_id.to_string()));
+                        let Some(version) = change.input_version else {
+                            continue;
+                        };
+
+                        let key = ObjectKey(object_id, version);
+
+                        let Some(obj) = checkpoint.object_set.get(&key) else {
+                            continue;
+                        };
+
+                        if self.is_inventory(obj) {
+                            results.push(InventoryAction::Delete(object_id.to_string()));
+                        }
                     }
                 }
             }
@@ -219,23 +231,26 @@ impl Handler for InventoryHandler {
                 let values: Vec<StoredInventoryEntry> =
                     inventory.entries.values().cloned().collect();
 
-                diesel::insert_into(inventory_entries)
-                    .values(values)
-                    .on_conflict((inventory_id, type_id))
-                    .do_update()
-                    .set((
-                        item_id.eq(excluded(item_id)),
-                        volume.eq(excluded(volume)),
-                        quantity.eq(excluded(quantity)),
-                        checkpoint_updated.eq(excluded(checkpoint_updated)),
-                    ))
-                    .filter(checkpoint_updated.lt(excluded(checkpoint_updated)))
-                    .execute(conn)
-                    .await?;
+                if !values.is_empty() {
+                    diesel::insert_into(inventory_entries)
+                        .values(values)
+                        .on_conflict((inventory_id, type_id))
+                        .do_update()
+                        .set((
+                            item_id.eq(excluded(item_id)),
+                            volume.eq(excluded(volume)),
+                            quantity.eq(excluded(quantity)),
+                            checkpoint_updated.eq(excluded(checkpoint_updated)),
+                        ))
+                        .filter(checkpoint_updated.lt(excluded(checkpoint_updated)))
+                        .execute(conn)
+                        .await?;
+                }
 
                 diesel::delete(inventory_entries)
                     .filter(inventory_id.eq(inventory.id.clone()))
                     .filter(type_id.ne_all(keys))
+                    .filter(checkpoint_updated.le(inventory.checkpoint_updated))
                     .execute(conn)
                     .await?;
             }

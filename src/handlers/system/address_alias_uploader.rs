@@ -1,4 +1,6 @@
+use anyhow::Context;
 use serde_json::json;
+
 use sui_graphql::Bcs;
 use sui_graphql::Client;
 use sui_graphql_macros::Response;
@@ -110,7 +112,7 @@ async fn write_entries(
 }
 
 pub async fn upload_address_aliases(conn: &mut Connection<'_>) -> anyhow::Result<()> {
-    let client = Client::new(Client::TESTNET).expect("Could not initialize graphql client");
+    let client = Client::new(Client::TESTNET).context("Could not initialize graphql client")?;
 
     let query = "query GetAddressAliases($type:String, $token:String) {
       objects(filter: {type: $type}, after: $token) {

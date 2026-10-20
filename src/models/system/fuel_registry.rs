@@ -1,3 +1,4 @@
+use anyhow::Context;
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 
@@ -15,32 +16,45 @@ pub struct FuelRegistry {
 }
 
 impl FuelRegistry {
-    pub async fn load_from_db(conn: &mut Connection<'_>) -> Self {
+    pub async fn load_from_db(conn: &mut Connection<'_>) -> anyhow::Result<Self> {
         use crate::schema::fuel_config::dsl::*;
 
         let records = fuel_config
             .load::<StoredFuelConfig>(conn)
             .await
-            .expect("Failed to fetch records from fuel registry");
+            .context("Failed to fetch records from fuel registry")?;
 
         let mut cache = HashMap::new();
 
         for record in records {
-            cache.insert(record.type_id.clone(), Arc::new(record));
+            cache.insert(record.type_id, Arc::new(record));
         }
 
-        Self {
+        Ok(Self {
             cache: RwLock::new(cache),
-        }
+        })
     }
 
     pub fn add_fuel(&self, record: &StoredFuelConfig) {
-        let shared = Arc::new(record.clone());
+        let updated = Arc::new(record.clone());
 
-        self.cache
-            .write()
-            .unwrap()
-            .insert(shared.type_id.clone(), shared);
+        if let Some(current) = self.get_record(&updated.type_id) {
+            if updated.checkpoint_updated >= current.checkpoint_updated {
+                self.cache
+                    .write()
+                    .unwrap()
+                    .insert(updated.type_id.clone(), updated);
+            }
+        } else {
+            self.cache
+                .write()
+                .unwrap()
+                .insert(updated.type_id.clone(), updated);
+        };
+    }
+
+    pub fn remove_fuel(&self, key: i64) {
+        self.cache.write().unwrap().remove(&key);
     }
 
     pub fn get_record(&self, type_id: &i64) -> Option<Arc<StoredFuelConfig>> {

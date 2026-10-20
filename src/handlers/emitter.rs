@@ -2,8 +2,12 @@ use futures::future::join_all;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::sync::Arc;
+use tokio::sync::mpsc;
 
 use crate::transports::Transport;
+
+const EMITTER_QUEUE_CAPACITY: usize = 1024;
+const EMITTER_TIMEOUT_SECS: u64 = 5;
 
 pub trait Dispatchable<I> {
     fn dispatch_iter(&self) -> Box<dyn Iterator<Item = &I> + Send + '_>;
@@ -31,48 +35,84 @@ impl<I: Send + Sync> Dispatchable<I> for HashMap<String, I> {
 }
 
 pub struct Emitter<I: Serialize + Send + Sync + 'static> {
-    transports: Vec<Arc<dyn Transport<I>>>,
+    sender: Option<mpsc::Sender<(&'static str, Vec<I>)>>,
 }
 
-impl<I: Serialize + Send + Sync + 'static> Emitter<I> {
+impl<I: Serialize + Clone + Send + Sync + 'static> Emitter<I> {
     pub fn new(transports: Vec<Arc<dyn Transport<I>>>) -> Self {
-        Self { transports }
+        if transports.is_empty() {
+            return Self { sender: None };
+        }
+
+        let (sender, mut receiver) =
+            mpsc::channel::<(&'static str, Vec<I>)>(EMITTER_QUEUE_CAPACITY);
+
+        tokio::spawn(async move {
+            while let Some((pipeline, items)) = receiver.recv().await {
+                for item in &items {
+                    Self::dispatch_entry(&transports, pipeline, item).await;
+                }
+            }
+        });
+
+        Self {
+            sender: Some(sender),
+        }
     }
 
-    pub fn dispatch<B>(self: &Arc<Self>, pipeline: &'static str, batch: &B)
+    pub fn dispatch<B>(&self, pipeline: &'static str, batch: &B)
     where
-        B: Dispatchable<I> + Clone + Send + 'static,
+        B: Dispatchable<I>,
     {
+        let Some(tx) = &self.sender else {
+            return;
+        };
+
         if batch.is_empty() {
             return;
         }
 
-        let batch = batch.clone();
-        let emitter = Arc::clone(self);
+        let items: Vec<I> = batch.dispatch_iter().cloned().collect();
 
-        tokio::spawn(async move {
-            for entry in batch.dispatch_iter() {
-                emitter.dispatch_entry(pipeline, entry).await;
-            }
-        });
+        if let Err(err) = tx.try_send((pipeline, items)) {
+            tracing::warn!(
+                pipeline,
+                "Emitter queue full or closed, dropping batch: {}",
+                err
+            );
+        }
     }
 
-    async fn dispatch_entry(&self, pipeline: &'static str, item: &I) {
-        if self.transports.is_empty() {
-            return;
-        }
-
-        let futs: Vec<_> = self
-            .transports
+    async fn dispatch_entry(
+        transports: &[Arc<dyn Transport<I>>],
+        pipeline: &'static str,
+        item: &I,
+    ) {
+        let futs: Vec<_> = transports
             .iter()
-            .map(|t| t.send(pipeline, item))
+            .map(|transport| {
+                tokio::time::timeout(
+                    tokio::time::Duration::from_secs(EMITTER_TIMEOUT_SECS),
+                    transport.send(pipeline, item),
+                )
+            })
             .collect();
 
         let results = join_all(futs).await;
 
         for result in results {
-            if let Err(e) = result {
-                tracing::warn!(pipeline, "Transport send failed: {:?}", e);
+            match result {
+                Ok(Ok(())) => {}
+                Ok(Err(err)) => {
+                    tracing::warn!(pipeline, "Transport send failed: {:?}", err);
+                }
+                Err(_) => {
+                    tracing::warn!(
+                        pipeline,
+                        "Transport timed out after {} seconds.",
+                        EMITTER_TIMEOUT_SECS
+                    );
+                }
             }
         }
     }

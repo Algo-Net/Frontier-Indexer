@@ -1,3 +1,4 @@
+use anyhow::Context;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -41,16 +42,16 @@ pub struct StoredLocationRevealed {
 }
 
 impl StoredLocationRevealed {
-    pub fn from_event(event: &Event, meta: &EventMeta) -> Self {
+    pub fn from_event(event: &Event, meta: &EventMeta) -> anyhow::Result<Self> {
         let move_event: MoveLocationRevealed = bcs::from_bytes(&event.contents)
-            .expect("Failed to deserialize Location Revealed event");
+            .context("Failed to deserialize Location Revealed event")?;
 
         let occurred_at = DateTime::from_timestamp_millis(meta.checkpoint_timestamp_ms())
-            .expect("Failed to parse checkpoint timestamp into DateTime");
+            .context("Failed to parse checkpoint timestamp into DateTime")?;
 
         let location_hash = format!("0x{:0>64}", hex::encode(&move_event.location_hash));
 
-        Self {
+        Ok(Self {
             event_id: meta.event_digest(),
             occurred_at,
             id: move_event.assembly_id.to_hex(),
@@ -62,6 +63,6 @@ impl StoredLocationRevealed {
             x: move_event.x,
             y: move_event.y,
             z: move_event.z,
-        }
+        })
     }
 }

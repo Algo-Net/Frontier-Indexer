@@ -1,1 +1,1 @@
-DELETE TABLE IF EXISTS energy_config;
+DROP TABLE IF EXISTS energy_config;

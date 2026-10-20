@@ -62,7 +62,7 @@ impl Processor for RiftLocationBroadcastedHandler {
             for (index, ev) in events.data.iter().enumerate() {
                 if self.is_rift_location_broadcasted(ev) {
                     let meta = base_meta.with_index(index);
-                    let event = StoredRiftLocationBroadcasted::from_event(ev, &meta);
+                    let event = StoredRiftLocationBroadcasted::from_event(ev, &meta)?;
                     results.push(event);
                 }
             }

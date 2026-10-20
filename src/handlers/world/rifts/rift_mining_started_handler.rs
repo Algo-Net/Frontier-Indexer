@@ -62,7 +62,7 @@ impl Processor for RiftMiningStartedHandler {
             for (index, ev) in events.data.iter().enumerate() {
                 if self.is_rift_mining_started(ev) {
                     let meta = base_meta.with_index(index);
-                    let event = StoredRiftMiningStarted::from_event(ev, &meta);
+                    let event = StoredRiftMiningStarted::from_event(ev, &meta)?;
                     results.push(event);
                 }
             }

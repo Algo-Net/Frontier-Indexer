@@ -1,3 +1,5 @@
+use tokio::sync::RwLock;
+
 use async_trait::async_trait;
 use serde::Serialize;
 
@@ -8,6 +10,7 @@ use crate::transports::Routing;
 
 pub struct AmqpTransport {
     pool: deadpool_lapin::Pool,
+    channel: RwLock<Option<lapin::Channel>>,
     exchange: String,
 }
 
@@ -27,23 +30,52 @@ impl AmqpTransport {
         });
 
         let pool = cfg.create_pool(Some(deadpool_lapin::Runtime::Tokio1))?;
+
+        let transport = Self {
+            pool,
+            channel: RwLock::new(None),
+            exchange,
+        };
+
+        transport.get_channel().await?;
+
+        Ok(transport)
+    }
+
+    async fn get_channel(&self) -> anyhow::Result<lapin::Channel> {
         {
-            let conn = pool.get().await?;
-            let channel = conn.create_channel().await?;
-            channel
-                .exchange_declare(
-                    &exchange,
-                    lapin::ExchangeKind::Topic,
-                    lapin::options::ExchangeDeclareOptions {
-                        durable: true,
-                        ..Default::default()
-                    },
-                    lapin::types::FieldTable::default(),
-                )
-                .await?;
+            let guard = self.channel.read().await;
+            if let Some(channel) = guard.as_ref() {
+                if channel.status().connected() {
+                    return Ok(channel.clone());
+                }
+            }
         }
 
-        Ok(Self { pool, exchange })
+        let mut guard = self.channel.write().await;
+        if let Some(channel) = guard.as_ref() {
+            if channel.status().connected() {
+                return Ok(channel.clone());
+            }
+        }
+
+        let connection = self.pool.get().await?;
+        let channel = connection.create_channel().await?;
+
+        channel
+            .exchange_declare(
+                &self.exchange,
+                lapin::ExchangeKind::Topic,
+                lapin::options::ExchangeDeclareOptions {
+                    durable: true,
+                    ..Default::default()
+                },
+                lapin::types::FieldTable::default(),
+            )
+            .await?;
+
+        *guard = Some(channel.clone());
+        Ok(channel)
     }
 
     async fn send<I: Serialize + Send + Sync + 'static>(
@@ -53,8 +85,7 @@ impl AmqpTransport {
     ) -> anyhow::Result<()> {
         let amqp_key = format!("indexer.{}", routing);
         let payload = serde_json::to_vec(item)?;
-        let conn = self.pool.get().await?;
-        let channel = conn.create_channel().await?;
+        let channel = self.get_channel().await?;
 
         channel
             .basic_publish(
@@ -102,7 +133,7 @@ impl Routing<StoredOwnerCapCreated> for AmqpTransport {
         _pipeline: &'static str,
         item: &StoredOwnerCapCreated,
     ) -> anyhow::Result<()> {
-        let routing = format!("{}.{}.{}", "owner_cap", item.object_id, "created");
+        let routing = format!("{}.{}.{}", "owner_cap", item.id, "created");
         self.send(routing, item).await
     }
 }
@@ -112,7 +143,7 @@ impl Routing<OwnerCapAction> for AmqpTransport {
     async fn send(&self, _pipeline: &'static str, action: &OwnerCapAction) -> anyhow::Result<()> {
         match action {
             OwnerCapAction::Upsert(item) => {
-                let routing = format!("{}.{}.{}", "owner_cap", item.object_id, "updated");
+                let routing = format!("{}.{}.{}", "owner_cap", item.id, "updated");
                 self.send(routing, item).await
             }
             OwnerCapAction::Delete(id_str) => {

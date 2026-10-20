@@ -59,7 +59,7 @@ impl Processor for RiftSpawnedHandler {
             for (index, ev) in events.data.iter().enumerate() {
                 if self.is_rift_spawned(ev) {
                     let meta = base_meta.with_index(index);
-                    let event = StoredRiftSpawned::from_event(ev, &meta);
+                    let event = StoredRiftSpawned::from_event(ev, &meta)?;
                     results.push(event);
                 }
             }

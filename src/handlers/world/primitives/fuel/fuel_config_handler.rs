@@ -1,3 +1,4 @@
+use anyhow::Context;
 use async_trait::async_trait;
 use move_core_types::account_address::AccountAddress;
 use serde::Serialize;
@@ -92,8 +93,7 @@ impl FuelConfigHandler {
             return None;
         };
 
-        let package_id = AccountAddress::from_str(&table.package_id)
-            .expect("Failed to parse package_id stored in table registry.");
+        let package_id = AccountAddress::from_str(&table.package_id).ok()?;
 
         if table.module_name != owner_module_name {
             return None;
@@ -151,18 +151,21 @@ impl Processor for FuelConfigHandler {
                         };
 
                         if self.is_fuel_config(obj) {
-                            let move_obj =
-                                obj.data.try_as_move().expect("Object is not a Move object");
+                            let move_obj = obj
+                                .data
+                                .try_as_move()
+                                .context("Object is not a Move object")?;
+
                             let bytes = move_obj.contents();
 
                             let fuel_config: MoveFuelConfig = bcs::from_bytes(bytes)
-                                .expect("Failed to deserialize FuelConfig object");
+                                .context("Failed to deserialize FuelConfig object")?;
 
                             let move_type = move_obj.type_();
 
                             let tag = move_type
                                 .other()
-                                .expect("Failed to get appropriate move type for FuelConfig");
+                                .context("Failed to get appropriate move type for FuelConfig")?;
 
                             let table_id = fuel_config.fuel_efficiency.id.to_canonical_string(true);
 
@@ -182,7 +185,19 @@ impl Processor for FuelConfigHandler {
                         }
                     }
                     IDOperation::Deleted => {
-                        results.push(FuelConfigAction::Delete(object_id.to_string()));
+                        let Some(version) = change.input_version else {
+                            continue;
+                        };
+
+                        let key = ObjectKey(object_id, version);
+
+                        let Some(obj) = checkpoint.object_set.get(&key) else {
+                            continue;
+                        };
+
+                        if self.is_fuel_config(obj) {
+                            results.push(FuelConfigAction::Delete(object_id.to_string()));
+                        }
                     }
                 }
             }
@@ -208,7 +223,7 @@ impl Processor for FuelConfigHandler {
                                 obj,
                                 table.table_id.clone(),
                                 checkpoint_updated,
-                            );
+                            )?;
 
                             results.push(FuelConfigAction::Upsert(config));
                         }
@@ -312,10 +327,15 @@ impl Handler for FuelConfigHandler {
         }
 
         if !to_delete.is_empty() {
-            diesel::delete(fuel_config)
+            let ids = diesel::delete(fuel_config)
                 .filter(entry_object_id.eq_any(to_delete))
-                .execute(conn)
+                .returning(type_id)
+                .get_results(conn)
                 .await?;
+
+            for id in ids {
+                self.ctx.fuels.remove_fuel(id);
+            }
         }
 
         Ok(batch.len())

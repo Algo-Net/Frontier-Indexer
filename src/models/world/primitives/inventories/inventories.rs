@@ -1,3 +1,4 @@
+use anyhow::Context;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -34,16 +35,25 @@ pub struct StoredInventory {
 }
 
 impl StoredInventory {
-    pub fn from_object(obj: &Object, parent_id: String, checkpoint_updated: i64) -> Self {
-        let move_obj = obj.data.try_as_move().expect("Object is not a Move object");
+    pub fn from_object(
+        obj: &Object,
+        parent_id: String,
+        checkpoint_updated: i64,
+    ) -> anyhow::Result<Self> {
+        let move_obj = obj
+            .data
+            .try_as_move()
+            .context("Object is not a Move object")?;
+
         let bytes = move_obj.contents();
 
         let inventory: Field<Address, MoveInventory> =
-            bcs::from_bytes(bytes).expect("Failed to deserialize Inventory object");
+            bcs::from_bytes(bytes).context("Failed to deserialize Inventory object")?;
 
         let inventory_id = obj.id().to_canonical_string(true);
 
-        let entries: HashMap<i64, StoredInventoryEntry> = inventory.value
+        let entries: HashMap<i64, StoredInventoryEntry> = inventory
+            .value
             .items
             .contents
             .into_iter()
@@ -59,13 +69,13 @@ impl StoredInventory {
             })
             .collect();
 
-        Self {
+        Ok(Self {
             id: obj.id().to_canonical_string(true),
             parent_id,
             capacity_max: inventory.value.max_capacity as i64,
             capacity_used: inventory.value.used_capacity as i64,
             checkpoint_updated,
             entries,
-        }
+        })
     }
 }

@@ -64,7 +64,7 @@ impl Routing<StoredOwnerCapCreated> for RedisTransport {
         _pipeline: &'static str,
         item: &StoredOwnerCapCreated,
     ) -> anyhow::Result<()> {
-        let channel = format!("{}:{}:{}", "owner_cap", item.object_id, "created");
+        let channel = format!("{}:{}:{}", "owner_cap", item.id, "created");
         self.send(channel, item).await
     }
 }
@@ -74,7 +74,7 @@ impl Routing<OwnerCapAction> for RedisTransport {
     async fn send(&self, _pipeline: &'static str, action: &OwnerCapAction) -> anyhow::Result<()> {
         match action {
             OwnerCapAction::Upsert(item) => {
-                let channel = format!("{}:{}:{}", "owner_cap", item.object_id, "updated");
+                let channel = format!("{}:{}:{}", "owner_cap", item.id, "updated");
                 self.send(channel, item).await
             }
             OwnerCapAction::Delete(id_str) => {

@@ -1,3 +1,4 @@
+use anyhow::Context;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -35,19 +36,23 @@ pub struct StoredCharacter {
 }
 
 impl StoredCharacter {
-    pub fn from_object(obj: &Object, checkpoint_updated: i64) -> Self {
-        let move_obj = obj.data.try_as_move().expect("Object is not a Move object");
+    pub fn from_object(obj: &Object, checkpoint_updated: i64) -> anyhow::Result<Self> {
+        let move_obj = obj
+            .data
+            .try_as_move()
+            .context("Object is not a Move object")?;
+
         let bytes = move_obj.contents();
 
         let character: MoveCharacter =
-            bcs::from_bytes(bytes).expect("Failed to deserialize Character object");
+            bcs::from_bytes(bytes).context("Failed to deserialize Character object")?;
 
         let (name, description, url) = character
             .metadata
             .map(|meta| (meta.name, Some(meta.description), Some(meta.url)))
             .unwrap_or(("Unknown".to_string(), None, None));
 
-        Self {
+        Ok(Self {
             id: character.id.to_hex(),
             item_id: character.key.item_id.to_string(),
             tenant: character.key.tenant,
@@ -58,6 +63,6 @@ impl StoredCharacter {
             description,
             url,
             checkpoint_updated,
-        }
+        })
     }
 }

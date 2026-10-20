@@ -1,3 +1,4 @@
+use anyhow::Context;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -27,12 +28,16 @@ pub struct StoredOwnerCap {
 }
 
 impl StoredOwnerCap {
-    pub fn from_object(obj: &Object, checkpoint_updated: i64) -> Self {
-        let move_obj = obj.data.try_as_move().expect("Object is not a Move object");
+    pub fn from_object(obj: &Object, checkpoint_updated: i64) -> anyhow::Result<Self> {
+        let move_obj = obj
+            .data
+            .try_as_move()
+            .context("Object is not a Move object")?;
+
         let bytes = move_obj.contents();
 
         let owner_cap: MoveOwnerCap =
-            bcs::from_bytes(bytes).expect("Failed to deserialize OwnerCap object");
+            bcs::from_bytes(bytes).context("Failed to deserialize OwnerCap object")?;
 
         let owner_address = match obj.owner {
             Owner::AddressOwner(address) => address.to_string(),
@@ -60,7 +65,7 @@ impl StoredOwnerCap {
             })
             .unwrap_or_else(|| ("".to_string(), "".to_string(), "".to_string()));
 
-        Self {
+        Ok(Self {
             id: owner_cap.id.to_hex(),
             object_id: owner_cap.authorized_object_id.to_hex(),
             owner_address,
@@ -68,6 +73,6 @@ impl StoredOwnerCap {
             module_name,
             struct_name,
             checkpoint_updated,
-        }
+        })
     }
 }

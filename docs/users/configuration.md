@@ -86,7 +86,7 @@ Sandbox mode is for testing and development. It allows the indexer to run agains
 
 | Variable                 | Description                                                                                                                        | Default    |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| `SANDBOX`                | Enable sandbox mode. Requires `SANDBOX_APP_PACKAGES` to also be set.                                                               | `false`    |
+| `SANDBOX_ENABLE`         | Enable sandbox mode. Requires `SANDBOX_APP_PACKAGES` to also be set.                                                               | `false`    |
 | `SANDBOX_NETWORK`        | The network environment for sandbox mode (`localnet` or `testnet`).                                                                | `localnet` |
 | `SANDBOX_APP_PACKAGES`   | Comma-separated list of App package IDs to track. Required when `SANDBOX=true`.                                                    | (None)     |
 | `SANDBOX_WORLD_PACKAGES` | Comma-separated list of World package IDs to use instead of the hardcoded addresses. When omitted, the World pipeline is disabled. | (None)     |

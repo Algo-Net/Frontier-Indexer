@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use serde::Serialize;
-use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::collections::hash_map::Entry;
 use std::sync::Arc;
 
 use diesel::prelude::*;
@@ -15,8 +15,8 @@ use sui_types::object::Object;
 use sui_types::object::Owner;
 use sui_types::storage::ObjectKey;
 
-use sui_indexer_alt_framework::pipeline::sequential::Handler;
 use sui_indexer_alt_framework::pipeline::Processor;
+use sui_indexer_alt_framework::pipeline::sequential::Handler;
 use sui_indexer_alt_framework::postgres::{Connection, Db};
 use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 
@@ -132,7 +132,7 @@ impl Processor for TurretHandler {
                         };
 
                         if self.is_turret(obj) {
-                            let turret = StoredTurret::from_object(obj, checkpoint_updated);
+                            let turret = StoredTurret::from_object(obj, checkpoint_updated)?;
                             turrets.insert(turret.id.clone(), Arc::new(turret.clone()));
                             results.push(TurretAction::Upsert(turret));
                         }
@@ -142,7 +142,19 @@ impl Processor for TurretHandler {
                         }
                     }
                     IDOperation::Deleted => {
-                        results.push(TurretAction::Delete(object_id.to_string()));
+                        let Some(version) = change.input_version else {
+                            continue;
+                        };
+
+                        let key = ObjectKey(object_id, version);
+
+                        let Some(obj) = checkpoint.object_set.get(&key) else {
+                            continue;
+                        };
+
+                        if self.is_turret(obj) {
+                            results.push(TurretAction::Delete(object_id.to_string()));
+                        }
                     }
                 }
             }
@@ -150,7 +162,7 @@ impl Processor for TurretHandler {
 
         for obj in freezes {
             if let Some(turret) = self.get_extension_freeze_turret(obj, &turrets) {
-                let freeze = StoredExtensionFreeze::from_object(obj, turret);
+                let freeze = StoredExtensionFreeze::from_object(obj, turret)?;
                 results.push(TurretAction::Freeze(freeze));
             }
         }

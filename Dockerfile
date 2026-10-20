@@ -1,4 +1,4 @@
-FROM docker.io/rust:1.90.0 AS builder
+FROM docker.io/rust:1.90.0-slim-trixie AS builder
 
 ARG PROFILE=release
 ARG GIT_REVISION
@@ -6,57 +6,44 @@ ENV GIT_REVISION=$GIT_REVISION
 
 WORKDIR work
 
-COPY Cargo.lock Cargo.toml ./
-COPY diesel.toml ./
-COPY src/ ./src/
-COPY migrations/ ./migrations/
-COPY pipelines.toml ./
-
-RUN apt-get update
-RUN apt-get -y --no-install-recommends install \
+RUN apt-get update && apt-get -y --no-install-recommends install \
     build-essential \
     libssl-dev \
     libpq-dev \
     pkg-config \
-    curl \
     cmake \
     clang \
-    ca-certificates
-    
+    ca-certificates \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY Cargo.lock Cargo.toml ./
+COPY diesel.toml ./
+COPY pipelines.toml ./
+COPY src/ ./src/
+COPY migrations/ ./migrations/
+
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 RUN cargo build --profile $PROFILE --config net.git-fetch-with-cli=true
 
+# --- RUNTIME STAGE ---
 FROM docker.io/debian:trixie-slim AS runtime
 
-RUN apt-get update
-RUN apt-get -y --no-install-recommends install \
-    wget \
-    iputils-ping \
-    procps \
-    bind9-host \
-    bind9-dnsutils \
-    curl \
-    iproute2 \
-    git \
+RUN apt-get update && apt-get -y --no-install-recommends install \
     ca-certificates \
-    libpq-dev \
-    postgresql
-
-RUN rm -rf /var/lib/apt/lists/*
-
-RUN mkdir -p /opt/indexer/bin
+    libssl3t64 \
+    libpq5 \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/indexer/bin
+
 COPY --from=builder /work/target/release/indexer /opt/indexer/bin/indexer
 COPY --from=builder /work/pipelines.toml /opt/indexer/bin/pipelines.toml
 
-RUN ["chmod", "+x", "/opt/indexer/bin/indexer"]
-
 ARG BUILD_DATE
-LABEL build-date=$BUILD_DATE
-
 ARG GIT_REVISION
-LABEL git-revision=$GIT_REVISION
+LABEL build-date=$BUILD_DATE \
+      git-revision=$GIT_REVISION
 
 ENTRYPOINT ["/opt/indexer/bin/indexer"]

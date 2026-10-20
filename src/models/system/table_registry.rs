@@ -1,3 +1,4 @@
+use anyhow::Context;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
@@ -29,13 +30,13 @@ pub struct TableRegistry {
 }
 
 impl TableRegistry {
-    pub async fn load_from_db(conn: &mut Connection<'_>) -> Self {
+    pub async fn load_from_db(conn: &mut Connection<'_>) -> anyhow::Result<Self> {
         use crate::schema::system_table_registry::dsl::*;
 
         let records = system_table_registry
             .load::<StoredTableRecord>(conn)
             .await
-            .expect("Failed to fetch records from table registry");
+            .context("Failed to fetch records from table registry")?;
 
         let mut cache = HashMap::new();
 
@@ -43,9 +44,9 @@ impl TableRegistry {
             cache.insert(record.table_id.clone(), Arc::new(record));
         }
 
-        Self {
+        Ok(Self {
             cache: RwLock::new(cache),
-        }
+        })
     }
 
     pub async fn add_table(
@@ -59,24 +60,26 @@ impl TableRegistry {
             .values(record)
             .on_conflict(table_id)
             .do_update()
-            .set((
-                parent_id.eq(excluded(parent_id)),
-                module_name.eq(excluded(module_name)),
-                struct_name.eq(excluded(struct_name)),
-                key_type.eq(excluded(key_type)),
-                value_type.eq(excluded(value_type)),
-                checkpoint_updated.eq(excluded(checkpoint_updated)),
-            ))
+            .set(checkpoint_updated.eq(excluded(checkpoint_updated)))
             .filter(checkpoint_updated.lt(excluded(checkpoint_updated)))
             .execute(conn)
             .await?;
 
-        let shared = Arc::new(record.clone());
+        let updated = Arc::new(record.clone());
 
-        self.cache
-            .write()
-            .unwrap()
-            .insert(shared.table_id.clone(), shared);
+        if let Some(current) = self.get_record(&updated.table_id) {
+            if updated.checkpoint_updated >= current.checkpoint_updated {
+                self.cache
+                    .write()
+                    .unwrap()
+                    .insert(updated.table_id.clone(), updated);
+            }
+        } else {
+            self.cache
+                .write()
+                .unwrap()
+                .insert(updated.table_id.clone(), updated);
+        };
 
         Ok(())
     }

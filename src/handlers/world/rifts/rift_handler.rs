@@ -83,12 +83,24 @@ impl Processor for RiftHandler {
                         };
 
                         if self.is_rift(obj) {
-                            let rift = StoredRift::from_object(obj, checkpoint_updated);
+                            let rift = StoredRift::from_object(obj, checkpoint_updated)?;
                             results.push(RiftAction::Upsert(rift));
                         }
                     }
                     IDOperation::Deleted => {
-                        results.push(RiftAction::Delete(object_id.to_string()));
+                        let Some(version) = change.input_version else {
+                            continue;
+                        };
+
+                        let key = ObjectKey(object_id, version);
+
+                        let Some(obj) = checkpoint.object_set.get(&key) else {
+                            continue;
+                        };
+
+                        if self.is_rift(obj) {
+                            results.push(RiftAction::Delete(object_id.to_string()));
+                        }
                     }
                 }
             }

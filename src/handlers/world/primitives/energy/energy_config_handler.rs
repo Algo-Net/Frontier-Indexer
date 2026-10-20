@@ -1,3 +1,4 @@
+use anyhow::Context;
 use async_trait::async_trait;
 use move_core_types::account_address::AccountAddress;
 use serde::Serialize;
@@ -92,8 +93,7 @@ impl EnergyConfigHandler {
             return None;
         };
 
-        let package_id = AccountAddress::from_str(&table.package_id)
-            .expect("Failed to parse package_id stored in table registry.");
+        let package_id = AccountAddress::from_str(&table.package_id).ok()?;
 
         if table.module_name != owner_module_name {
             return None;
@@ -151,18 +151,21 @@ impl Processor for EnergyConfigHandler {
                         };
 
                         if self.is_energy_config(obj) {
-                            let move_obj =
-                                obj.data.try_as_move().expect("Object is not a Move object");
+                            let move_obj = obj
+                                .data
+                                .try_as_move()
+                                .context("Object is not a Move object")?;
+
                             let bytes = move_obj.contents();
 
                             let energy_config: MoveEnergyConfig = bcs::from_bytes(bytes)
-                                .expect("Failed to deserialize EnergyConfig object");
+                                .context("Failed to deserialize EnergyConfig object")?;
 
                             let move_type = move_obj.type_();
 
                             let tag = move_type
                                 .other()
-                                .expect("Failed to get appropriate move type for EnergyConfig");
+                                .context("Failed to get appropriate move type for EnergyConfig")?;
 
                             let table_id =
                                 energy_config.assembly_energy.id.to_canonical_string(true);
@@ -183,7 +186,19 @@ impl Processor for EnergyConfigHandler {
                         }
                     }
                     IDOperation::Deleted => {
-                        results.push(EnergyConfigAction::Delete(object_id.to_string()));
+                        let Some(version) = change.input_version else {
+                            continue;
+                        };
+
+                        let key = ObjectKey(object_id, version);
+
+                        let Some(obj) = checkpoint.object_set.get(&key) else {
+                            continue;
+                        };
+
+                        if self.is_energy_config(obj) {
+                            results.push(EnergyConfigAction::Delete(object_id.to_string()));
+                        }
                     }
                 }
             }
@@ -209,7 +224,7 @@ impl Processor for EnergyConfigHandler {
                                 obj,
                                 table.table_id.clone(),
                                 checkpoint_updated,
-                            );
+                            )?;
 
                             results.push(EnergyConfigAction::Upsert(config));
                         }

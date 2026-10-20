@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use serde::Serialize;
-use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::collections::hash_map::Entry;
 use std::sync::Arc;
 
 use diesel::prelude::*;
@@ -14,8 +14,8 @@ use sui_types::effects::{IDOperation, TransactionEffectsAPI};
 use sui_types::object::Object;
 use sui_types::storage::ObjectKey;
 
-use sui_indexer_alt_framework::pipeline::sequential::Handler;
 use sui_indexer_alt_framework::pipeline::Processor;
+use sui_indexer_alt_framework::pipeline::sequential::Handler;
 use sui_indexer_alt_framework::postgres::{Connection, Db};
 use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 
@@ -84,12 +84,24 @@ impl Processor for NetworkNodeHandler {
 
                         if self.is_network_node(obj) {
                             let network_node =
-                                StoredNetworkNode::from_object(&self.ctx, obj, checkpoint_updated);
+                                StoredNetworkNode::from_object(&self.ctx, obj, checkpoint_updated)?;
                             results.push(NetworkNodeAction::Upsert(network_node));
                         }
                     }
                     IDOperation::Deleted => {
-                        results.push(NetworkNodeAction::Delete(object_id.to_string()));
+                        let Some(version) = change.input_version else {
+                            continue;
+                        };
+
+                        let key = ObjectKey(object_id, version);
+
+                        let Some(obj) = checkpoint.object_set.get(&key) else {
+                            continue;
+                        };
+
+                        if self.is_network_node(obj) {
+                            results.push(NetworkNodeAction::Delete(object_id.to_string()));
+                        }
                     }
                 }
             }

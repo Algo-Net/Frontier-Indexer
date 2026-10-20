@@ -1,3 +1,4 @@
+use anyhow::Context;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -30,22 +31,22 @@ pub struct StoredRiftSpawned {
 }
 
 impl StoredRiftSpawned {
-    pub fn from_event(event: &Event, meta: &EventMeta) -> Self {
+    pub fn from_event(event: &Event, meta: &EventMeta) -> anyhow::Result<Self> {
         let move_event: MoveRiftSpawned =
-            bcs::from_bytes(&event.contents).expect("Failed to deserialize Rift Spawned event");
+            bcs::from_bytes(&event.contents).context("Failed to deserialize Rift Spawned event")?;
 
         let occurred_at = DateTime::from_timestamp_millis(meta.checkpoint_timestamp_ms())
-            .expect("Failed to parse checkpoint timestamp into DateTime");
+            .context("Failed to parse checkpoint timestamp into DateTime")?;
 
         let location_hash = format!("0x{:0>64}", hex::encode(&move_event.location_hash));
 
-        Self {
-          event_id: meta.event_digest(),
-          occurred_at,
-          id: move_event.rift_id.to_hex(),
-          item_id: move_event.rift_key.item_id.to_string(),
-          tenant: move_event.rift_key.tenant,
-          location_hash,
-        }
+        Ok(Self {
+            event_id: meta.event_digest(),
+            occurred_at,
+            id: move_event.rift_id.to_hex(),
+            item_id: move_event.rift_key.item_id.to_string(),
+            tenant: move_event.rift_key.tenant,
+            location_hash,
+        })
     }
 }

@@ -83,7 +83,7 @@ impl Processor for RiftHandler {
                         };
 
                         if self.is_rift(obj) {
-                            let rift = StoredRift::from_object(obj, checkpoint_updated);
+                            let rift = StoredRift::from_object(obj, checkpoint_updated)?;
                             results.push(RiftAction::Upsert(rift));
                         }
                     }

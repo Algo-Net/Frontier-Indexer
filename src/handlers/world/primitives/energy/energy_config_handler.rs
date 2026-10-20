@@ -209,7 +209,7 @@ impl Processor for EnergyConfigHandler {
                                 obj,
                                 table.table_id.clone(),
                                 checkpoint_updated,
-                            );
+                            )?;
 
                             results.push(EnergyConfigAction::Upsert(config));
                         }

@@ -1,3 +1,4 @@
+use anyhow::Context;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -33,20 +34,20 @@ pub struct StoredStatusChanged {
 }
 
 impl StoredStatusChanged {
-    pub fn from_event(event: &Event, meta: &EventMeta) -> Self {
-        let move_event: MoveStatusChanged =
-            bcs::from_bytes(&event.contents).expect("Failed to deserialize Status Changed event");
+    pub fn from_event(event: &Event, meta: &EventMeta) -> anyhow::Result<Self> {
+        let move_event: MoveStatusChanged = bcs::from_bytes(&event.contents)
+            .context("Failed to deserialize Status Changed event")?;
 
         let occurred_at = DateTime::from_timestamp_millis(meta.checkpoint_timestamp_ms())
-            .expect("Failed to parse checkpoint timestamp into DateTime");
+            .context("Failed to parse checkpoint timestamp into DateTime")?;
 
-        Self {
+        Ok(Self {
             event_id: meta.event_digest(),
             occurred_at,
             id: move_event.assembly_id.to_hex(),
             item_id: move_event.assembly_key.item_id.to_string(),
             status: move_event.status.as_ref().to_string(),
             action: move_event.action.as_ref().to_string(),
-        }
+        })
     }
 }

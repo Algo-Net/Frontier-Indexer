@@ -1,3 +1,4 @@
+use anyhow::Context;
 use serde::{Deserialize, Serialize};
 
 use diesel::prelude::*;
@@ -34,15 +35,19 @@ pub struct StoredItem {
 }
 
 impl StoredItem {
-    pub fn from_object(obj: &Object) -> Self {
-        let move_obj = obj.data.try_as_move().expect("Object is not a Move object");
+    pub fn from_object(obj: &Object) -> anyhow::Result<Self> {
+        let move_obj = obj
+            .data
+            .try_as_move()
+            .context("Object is not a Move object")?;
+
         let bytes = move_obj.contents();
 
-        let item: MoveItem = bcs::from_bytes(bytes).expect("Failed to deserialize Item object");
+        let item: MoveItem = bcs::from_bytes(bytes).context("Failed to deserialize Item object")?;
 
         let location = format!("0x{:0>64}", hex::encode(&item.location.location_hash));
 
-        Self {
+        Ok(Self {
             id: item.id.to_hex(),
             parent_id: item.parent_id.to_hex(),
             location,
@@ -50,6 +55,6 @@ impl StoredItem {
             type_id: item.type_id as i64,
             volume: item.volume as i64,
             quantity: item.quantity as i64,
-        }
+        })
     }
 }

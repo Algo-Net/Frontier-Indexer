@@ -116,7 +116,7 @@ impl Processor for InventoryHandler {
 
                             let parent_id = owner.to_string();
                             let inventory =
-                                StoredInventory::from_object(obj, parent_id, checkpoint_updated);
+                                StoredInventory::from_object(obj, parent_id, checkpoint_updated)?;
                             results.push(InventoryAction::Upsert(inventory));
                         }
                     }

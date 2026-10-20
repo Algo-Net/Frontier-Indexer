@@ -1,3 +1,4 @@
+use anyhow::Context;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -50,14 +51,14 @@ pub struct StoredItemDeposited {
 }
 
 impl StoredItemDeposited {
-    pub fn from_event(event: &Event, meta: &EventMeta) -> Self {
-        let move_event: MoveItemDeposited =
-            bcs::from_bytes(&event.contents).expect("Failed to deserialize Item Deposited event");
+    pub fn from_event(event: &Event, meta: &EventMeta) -> anyhow::Result<Self> {
+        let move_event: MoveItemDeposited = bcs::from_bytes(&event.contents)
+            .context("Failed to deserialize Item Deposited event")?;
 
         let occurred_at = DateTime::from_timestamp_millis(meta.checkpoint_timestamp_ms())
-            .expect("Failed to parse checkpoint timestamp into DateTime");
+            .context("Failed to parse checkpoint timestamp into DateTime")?;
 
-        Self {
+        Ok(Self {
             event_id: meta.event_digest(),
             occurred_at,
             item_id: move_event.item_id.to_string(),
@@ -68,17 +69,17 @@ impl StoredItemDeposited {
             character_id: move_event.character_id.to_hex(),
             character_item_id: move_event.character_key.item_id.to_string(),
             inventory_id: Option::None,
-        }
+        })
     }
 
-    pub fn from_event_v2(event: &Event, meta: &EventMeta) -> Self {
+    pub fn from_event_v2(event: &Event, meta: &EventMeta) -> anyhow::Result<Self> {
         let move_event: MoveItemDepositedV2 = bcs::from_bytes(&event.contents)
-            .expect("Failed to deserialize Item Deposited V2 event");
+            .context("Failed to deserialize Item Deposited V2 event")?;
 
         let occurred_at = DateTime::from_timestamp_millis(meta.checkpoint_timestamp_ms())
-            .expect("Failed to parse checkpoint timestamp into DateTime");
+            .context("Failed to parse checkpoint timestamp into DateTime")?;
 
-        Self {
+        Ok(Self {
             event_id: meta.event_digest(),
             occurred_at,
             item_id: move_event.item_id.to_string(),
@@ -89,6 +90,6 @@ impl StoredItemDeposited {
             character_id: move_event.character_id.to_hex(),
             character_item_id: move_event.character_key.item_id.to_string(),
             inventory_id: Option::Some(move_event.inventory_key.to_string()),
-        }
+        })
     }
 }

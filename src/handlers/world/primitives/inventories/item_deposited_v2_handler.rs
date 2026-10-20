@@ -5,8 +5,8 @@ use diesel_async::RunQueryDsl;
 
 use sui_types::event::Event;
 
-use sui_indexer_alt_framework::pipeline::sequential::Handler;
 use sui_indexer_alt_framework::pipeline::Processor;
+use sui_indexer_alt_framework::pipeline::sequential::Handler;
 use sui_indexer_alt_framework::postgres::{Connection, Db};
 use sui_indexer_alt_framework::types::full_checkpoint_content::Checkpoint;
 
@@ -59,7 +59,7 @@ impl Processor for ItemDepositedV2Handler {
             for (index, ev) in events.data.iter().enumerate() {
                 if self.is_item_deposited(ev) {
                     let meta = base_meta.with_index(index);
-                    let event = StoredItemDeposited::from_event_v2(ev, &meta);
+                    let event = StoredItemDeposited::from_event_v2(ev, &meta)?;
                     results.push(event);
                 }
             }

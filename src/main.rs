@@ -62,13 +62,6 @@ async fn main() -> Result<(), anyhow::Error> {
         tls_ca_cert_path,
     } = db_config;
 
-    // let database_str = format!(
-    //     "postgres://{}:{}@{}:{}/{}?options=-csearch_path%3D{}",
-    //     db_user, db_password, db_host, db_port, db_name, db_schema
-    // );
-
-    // let database_url = Url::parse(&database_str).expect("Failed to construct valid Database URL");
-
     let mut database_url = Url::parse(&format!("postgres://{}:{}/{}", db_host, db_port, db_name))
         .context("Failed to construct base Database URL")?;
 

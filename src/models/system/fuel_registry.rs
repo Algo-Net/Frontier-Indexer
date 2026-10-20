@@ -1,3 +1,4 @@
+use anyhow::Context;
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 
@@ -15,23 +16,23 @@ pub struct FuelRegistry {
 }
 
 impl FuelRegistry {
-    pub async fn load_from_db(conn: &mut Connection<'_>) -> Self {
+    pub async fn load_from_db(conn: &mut Connection<'_>) -> anyhow::Result<Self> {
         use crate::schema::fuel_config::dsl::*;
 
         let records = fuel_config
             .load::<StoredFuelConfig>(conn)
             .await
-            .expect("Failed to fetch records from fuel registry");
+            .context("Failed to fetch records from fuel registry")?;
 
         let mut cache = HashMap::new();
 
         for record in records {
-            cache.insert(record.type_id.clone(), Arc::new(record));
+            cache.insert(record.type_id, Arc::new(record));
         }
 
-        Self {
+        Ok(Self {
             cache: RwLock::new(cache),
-        }
+        })
     }
 
     pub fn add_fuel(&self, record: &StoredFuelConfig) {

@@ -1,3 +1,4 @@
+use anyhow::Context;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
@@ -29,13 +30,13 @@ pub struct TableRegistry {
 }
 
 impl TableRegistry {
-    pub async fn load_from_db(conn: &mut Connection<'_>) -> Self {
+    pub async fn load_from_db(conn: &mut Connection<'_>) -> anyhow::Result<Self> {
         use crate::schema::system_table_registry::dsl::*;
 
         let records = system_table_registry
             .load::<StoredTableRecord>(conn)
             .await
-            .expect("Failed to fetch records from table registry");
+            .context("Failed to fetch records from table registry")?;
 
         let mut cache = HashMap::new();
 
@@ -43,9 +44,9 @@ impl TableRegistry {
             cache.insert(record.table_id.clone(), Arc::new(record));
         }
 
-        Self {
+        Ok(Self {
             cache: RwLock::new(cache),
-        }
+        })
     }
 
     pub async fn add_table(

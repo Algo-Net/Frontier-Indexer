@@ -1,3 +1,4 @@
+use anyhow::Context;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -31,8 +32,11 @@ pub struct StoredAddressAliases {
 }
 
 impl AddressAliases {
-    pub fn from_object(obj: &Object, checkpoint_updated: i64) -> Self {
-        let move_obj = obj.data.try_as_move().expect("Object is not a Move object");
+    pub fn from_object(obj: &Object, checkpoint_updated: i64) -> anyhow::Result<Self> {
+        let move_obj = obj
+            .data
+            .try_as_move()
+            .context("Object is not a Move object")?;
         let bytes = move_obj.contents();
 
         let address_aliases: MoveAddressAliases =
@@ -53,11 +57,11 @@ impl AddressAliases {
             .map(|entry| entry.to_hex())
             .collect();
 
-        Self {
+        Ok(Self {
             id,
             aliases,
             checkpoint_updated,
-        }
+        })
     }
 
     pub fn from_parts(

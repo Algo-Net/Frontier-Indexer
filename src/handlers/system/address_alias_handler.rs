@@ -76,7 +76,7 @@ impl Processor for AddressAliasHandler {
 
                         if self.is_account_aliases(obj) {
                             let address_aliases =
-                                AddressAliases::from_object(obj, checkpoint_updated);
+                                AddressAliases::from_object(obj, checkpoint_updated)?;
                             results.push(address_aliases);
                         }
                     }

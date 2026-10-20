@@ -287,8 +287,8 @@ async fn main() -> Result<(), anyhow::Error> {
         .await
         .context("Failed to run pending migrations.")?;
 
-    let table_registry = TableRegistry::load_from_db(&mut conn).await;
-    let fuel_registry = FuelRegistry::load_from_db(&mut conn).await;
+    let table_registry = TableRegistry::load_from_db(&mut conn).await?;
+    let fuel_registry = FuelRegistry::load_from_db(&mut conn).await?;
 
     let context = AppContext::new(env, table_registry, fuel_registry);
 

@@ -7,6 +7,7 @@ use tokio::sync::mpsc;
 use crate::transports::Transport;
 
 const EMITTER_QUEUE_CAPACITY: usize = 1024;
+const EMITTER_TIMEOUT_SECS: u64 = 5;
 
 pub trait Dispatchable<I> {
     fn dispatch_iter(&self) -> Box<dyn Iterator<Item = &I> + Send + '_>;
@@ -91,7 +92,7 @@ impl<I: Serialize + Clone + Send + Sync + 'static> Emitter<I> {
             .iter()
             .map(|transport| {
                 tokio::time::timeout(
-                    tokio::time::Duration::from_secs(5),
+                    tokio::time::Duration::from_secs(EMITTER_TIMEOUT_SECS),
                     transport.send(pipeline, item),
                 )
             })
@@ -100,8 +101,18 @@ impl<I: Serialize + Clone + Send + Sync + 'static> Emitter<I> {
         let results = join_all(futs).await;
 
         for result in results {
-            if let Err(err) = result {
-                tracing::warn!(pipeline, "Transport send failed: {:?}", err);
+            match result {
+                Ok(Ok(())) => {}
+                Ok(Err(err)) => {
+                    tracing::warn!(pipeline, "Transport send failed: {:?}", err);
+                }
+                Err(_) => {
+                    tracing::warn!(
+                        pipeline,
+                        "Transport timed out after {} seconds.",
+                        EMITTER_TIMEOUT_SECS
+                    );
+                }
             }
         }
     }

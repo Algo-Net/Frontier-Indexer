@@ -142,7 +142,19 @@ impl Processor for TurretHandler {
                         }
                     }
                     IDOperation::Deleted => {
-                        results.push(TurretAction::Delete(object_id.to_string()));
+                        let Some(version) = change.input_version else {
+                            continue;
+                        };
+
+                        let key = ObjectKey(object_id, version);
+
+                        let Some(obj) = checkpoint.object_set.get(&key) else {
+                            continue;
+                        };
+
+                        if self.is_turret(obj) {
+                            results.push(TurretAction::Delete(object_id.to_string()));
+                        }
                     }
                 }
             }

@@ -185,7 +185,19 @@ impl Processor for FuelConfigHandler {
                         }
                     }
                     IDOperation::Deleted => {
-                        results.push(FuelConfigAction::Delete(object_id.to_string()));
+                        let Some(version) = change.input_version else {
+                            continue;
+                        };
+
+                        let key = ObjectKey(object_id, version);
+
+                        let Some(obj) = checkpoint.object_set.get(&key) else {
+                            continue;
+                        };
+
+                        if self.is_fuel_config(obj) {
+                            results.push(FuelConfigAction::Delete(object_id.to_string()));
+                        }
                     }
                 }
             }

@@ -80,13 +80,25 @@ impl Processor for ItemHandler {
                         };
 
                         if self.is_item(obj) {
-                            let assembly = StoredItem::from_object(obj)?;
-                            results.push(ItemAction::Upsert(assembly));
+                            let item = StoredItem::from_object(obj)?;
+                            results.push(ItemAction::Upsert(item));
                         }
                     }
                     IDOperation::None => {} // Items are immutable, no need to handle updates.
                     IDOperation::Deleted => {
-                        results.push(ItemAction::Delete(object_id.to_string()));
+                        let Some(version) = change.input_version else {
+                            continue;
+                        };
+
+                        let key = ObjectKey(object_id, version);
+
+                        let Some(obj) = checkpoint.object_set.get(&key) else {
+                            continue;
+                        };
+
+                        if self.is_item(obj) {
+                            results.push(ItemAction::Delete(object_id.to_string()));
+                        }
                     }
                 }
             }

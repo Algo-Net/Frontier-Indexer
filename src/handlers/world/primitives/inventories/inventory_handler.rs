@@ -121,7 +121,19 @@ impl Processor for InventoryHandler {
                         }
                     }
                     IDOperation::Deleted => {
-                        results.push(InventoryAction::Delete(object_id.to_string()));
+                        let Some(version) = change.input_version else {
+                            continue;
+                        };
+
+                        let key = ObjectKey(object_id, version);
+
+                        let Some(obj) = checkpoint.object_set.get(&key) else {
+                            continue;
+                        };
+
+                        if self.is_inventory(obj) {
+                            results.push(InventoryAction::Delete(object_id.to_string()));
+                        }
                     }
                 }
             }

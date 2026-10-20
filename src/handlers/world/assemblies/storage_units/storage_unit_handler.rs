@@ -144,7 +144,19 @@ impl Processor for StorageUnitHandler {
                         }
                     }
                     IDOperation::Deleted => {
-                        results.push(StorageUnitAction::Delete(object_id.to_string()));
+                        let Some(version) = change.input_version else {
+                            continue;
+                        };
+
+                        let key = ObjectKey(object_id, version);
+
+                        let Some(obj) = checkpoint.object_set.get(&key) else {
+                            continue;
+                        };
+
+                        if self.is_storage_unit(obj) {
+                            results.push(StorageUnitAction::Delete(object_id.to_string()));
+                        }
                     }
                 }
             }

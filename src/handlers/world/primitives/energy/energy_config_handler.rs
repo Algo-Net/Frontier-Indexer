@@ -186,7 +186,19 @@ impl Processor for EnergyConfigHandler {
                         }
                     }
                     IDOperation::Deleted => {
-                        results.push(EnergyConfigAction::Delete(object_id.to_string()));
+                        let Some(version) = change.input_version else {
+                            continue;
+                        };
+
+                        let key = ObjectKey(object_id, version);
+
+                        let Some(obj) = checkpoint.object_set.get(&key) else {
+                            continue;
+                        };
+
+                        if self.is_energy_config(obj) {
+                            results.push(EnergyConfigAction::Delete(object_id.to_string()));
+                        }
                     }
                 }
             }

@@ -86,7 +86,19 @@ impl Processor for GatePermitHandler {
                     }
                     IDOperation::None => {} // Permits are immutable, no need to handle updates.
                     IDOperation::Deleted => {
-                        results.push(GatePermitAction::Delete(object_id.to_string()));
+                        let Some(version) = change.input_version else {
+                            continue;
+                        };
+
+                        let key = ObjectKey(object_id, version);
+
+                        let Some(obj) = checkpoint.object_set.get(&key) else {
+                            continue;
+                        };
+
+                        if self.is_gate_permit(obj) {
+                            results.push(GatePermitAction::Delete(object_id.to_string()));
+                        }
                     }
                 }
             }

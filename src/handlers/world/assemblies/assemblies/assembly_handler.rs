@@ -88,7 +88,19 @@ impl Processor for AssemblyHandler {
                         }
                     }
                     IDOperation::Deleted => {
-                        results.push(AssemblyAction::Delete(object_id.to_string()));
+                        let Some(version) = change.input_version else {
+                            continue;
+                        };
+
+                        let key = ObjectKey(object_id, version);
+
+                        let Some(obj) = checkpoint.object_set.get(&key) else {
+                            continue;
+                        };
+
+                        if self.is_assembly(obj) {
+                            results.push(AssemblyAction::Delete(object_id.to_string()));
+                        }
                     }
                 }
             }

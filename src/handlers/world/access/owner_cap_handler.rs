@@ -68,7 +68,7 @@ impl Processor for OwnerCapHandler {
             }
 
             for change in &tx.effects.object_changes() {
-                let id = change.id;
+                let object_id = change.id;
 
                 match change.id_operation {
                     IDOperation::Created | IDOperation::None => {
@@ -76,7 +76,7 @@ impl Processor for OwnerCapHandler {
                             continue;
                         };
 
-                        let key = ObjectKey(id, version);
+                        let key = ObjectKey(object_id, version);
 
                         let Some(obj) = checkpoint.object_set.get(&key) else {
                             continue;
@@ -88,7 +88,19 @@ impl Processor for OwnerCapHandler {
                         }
                     }
                     IDOperation::Deleted => {
-                        results.push(OwnerCapAction::Delete(id.to_string()));
+                        let Some(version) = change.input_version else {
+                            continue;
+                        };
+
+                        let key = ObjectKey(object_id, version);
+
+                        let Some(obj) = checkpoint.object_set.get(&key) else {
+                            continue;
+                        };
+
+                        if self.is_owner_cap(obj) {
+                            results.push(OwnerCapAction::Delete(object_id.to_string()));
+                        }
                     }
                 }
             }

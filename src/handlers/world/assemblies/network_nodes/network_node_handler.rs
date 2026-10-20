@@ -89,7 +89,19 @@ impl Processor for NetworkNodeHandler {
                         }
                     }
                     IDOperation::Deleted => {
-                        results.push(NetworkNodeAction::Delete(object_id.to_string()));
+                        let Some(version) = change.input_version else {
+                            continue;
+                        };
+
+                        let key = ObjectKey(object_id, version);
+
+                        let Some(obj) = checkpoint.object_set.get(&key) else {
+                            continue;
+                        };
+
+                        if self.is_network_node(obj) {
+                            results.push(NetworkNodeAction::Delete(object_id.to_string()));
+                        }
                     }
                 }
             }

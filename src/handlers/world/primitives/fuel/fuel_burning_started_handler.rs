@@ -1,3 +1,4 @@
+use anyhow::Context;
 use async_trait::async_trait;
 use std::sync::Arc;
 
@@ -67,7 +68,7 @@ impl Processor for FuelBurningStartedHandler {
                 }
 
                 let move_event: MoveFuelEvent =
-                    bcs::from_bytes(&ev.contents).expect("Failed to deserialize Fuel event");
+                    bcs::from_bytes(&ev.contents).context("Failed to deserialize Fuel event")?;
 
                 if !matches!(move_event.action, MoveFuelAction::BurningStarted) {
                     continue;

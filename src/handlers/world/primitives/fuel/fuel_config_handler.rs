@@ -1,3 +1,4 @@
+use anyhow::Context;
 use async_trait::async_trait;
 use move_core_types::account_address::AccountAddress;
 use serde::Serialize;
@@ -92,8 +93,7 @@ impl FuelConfigHandler {
             return None;
         };
 
-        let package_id = AccountAddress::from_str(&table.package_id)
-            .expect("Failed to parse package_id stored in table registry.");
+        let package_id = AccountAddress::from_str(&table.package_id).ok()?;
 
         if table.module_name != owner_module_name {
             return None;
@@ -151,18 +151,21 @@ impl Processor for FuelConfigHandler {
                         };
 
                         if self.is_fuel_config(obj) {
-                            let move_obj =
-                                obj.data.try_as_move().expect("Object is not a Move object");
+                            let move_obj = obj
+                                .data
+                                .try_as_move()
+                                .context("Object is not a Move object")?;
+
                             let bytes = move_obj.contents();
 
                             let fuel_config: MoveFuelConfig = bcs::from_bytes(bytes)
-                                .expect("Failed to deserialize FuelConfig object");
+                                .context("Failed to deserialize FuelConfig object")?;
 
                             let move_type = move_obj.type_();
 
                             let tag = move_type
                                 .other()
-                                .expect("Failed to get appropriate move type for FuelConfig");
+                                .context("Failed to get appropriate move type for FuelConfig")?;
 
                             let table_id = fuel_config.fuel_efficiency.id.to_canonical_string(true);
 

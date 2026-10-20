@@ -40,7 +40,7 @@ impl AddressAliases {
         let bytes = move_obj.contents();
 
         let address_aliases: MoveAddressAliases =
-            bcs::from_bytes(bytes).expect("Failed to deserialize AccountAliases object");
+            bcs::from_bytes(bytes).context("Failed to deserialize AccountAliases object")?;
 
         let id = match obj.owner {
             Owner::AddressOwner(address) => address.to_string(),

@@ -1,3 +1,4 @@
+use anyhow::Context;
 use async_trait::async_trait;
 use serde::Serialize;
 use std::collections::HashMap;
@@ -92,8 +93,7 @@ impl GateConfigHandler {
             return None;
         };
 
-        let package_id = AccountAddress::from_str(&table.package_id)
-            .expect("Failed to parse package_id stored in table registry.");
+        let package_id = AccountAddress::from_str(&table.package_id).ok()?;
 
         if table.module_name != owner_module_name {
             return None;
@@ -151,18 +151,20 @@ impl Processor for GateConfigHandler {
                         };
 
                         if self.is_gate_config(obj) {
-                            let move_obj =
-                                obj.data.try_as_move().expect("Object is not a Move object");
+                            let move_obj = obj
+                                .data
+                                .try_as_move()
+                                .context("Object is not a Move object")?;
                             let bytes = move_obj.contents();
 
                             let gate_config: MoveGateConfig = bcs::from_bytes(bytes)
-                                .expect("Failed to deserialize Gate Config object");
+                                .context("Failed to deserialize Gate Config object")?;
 
                             let move_type = move_obj.type_();
 
                             let tag = move_type
                                 .other()
-                                .expect("Failed to get appropriate move type for GateConfig");
+                                .context("Failed to get appropriate move type for GateConfig")?;
 
                             let table_id = gate_config
                                 .max_distance_by_type

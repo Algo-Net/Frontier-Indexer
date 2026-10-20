@@ -15,10 +15,12 @@ pub struct MoveTypeName {
 
 impl MoveTypeName {
     pub fn to_components(&self) -> anyhow::Result<(String, String, String)> {
-        let type_name = if self.name.starts_with("0x") {
-            self.name.clone()
+        let base_name = self.name.split('<').next().unwrap_or(&self.name);
+
+        let type_name = if base_name.starts_with("0x") {
+            base_name.to_string()
         } else {
-            format!("0x{}", &self.name)
+            format!("0x{}", base_name)
         };
 
         let tag =

@@ -1,3 +1,4 @@
+use anyhow::Context;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -32,14 +33,14 @@ pub struct StoredAssemblyCreated {
 }
 
 impl StoredAssemblyCreated {
-    pub fn from_event(event: &Event, meta: &EventMeta) -> Self {
-        let move_event: MoveAssemblyCreated =
-            bcs::from_bytes(&event.contents).expect("Failed to deserialize Assembly Created event");
+    pub fn from_event(event: &Event, meta: &EventMeta) -> anyhow::Result<Self> {
+        let move_event: MoveAssemblyCreated = bcs::from_bytes(&event.contents)
+            .context("Failed to deserialize Assembly Created event")?;
 
         let occurred_at = DateTime::from_timestamp_millis(meta.checkpoint_timestamp_ms())
-            .expect("Failed to parse checkpoint timestamp into DateTime");
+            .context("Failed to parse checkpoint timestamp into DateTime")?;
 
-        Self {
+        Ok(Self {
             event_id: meta.event_digest(),
             occurred_at,
             id: move_event.assembly_id.to_hex(),
@@ -47,6 +48,6 @@ impl StoredAssemblyCreated {
             tenant: move_event.assembly_key.tenant,
             type_id: move_event.type_id as i64,
             owner_cap_id: move_event.owner_cap_id.to_hex(),
-        }
+        })
     }
 }

@@ -1,3 +1,4 @@
+use anyhow::Context;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -41,12 +42,16 @@ pub struct StoredAssembly {
 }
 
 impl StoredAssembly {
-    pub fn from_object(obj: &Object, checkpoint_updated: i64) -> Self {
-        let move_obj = obj.data.try_as_move().expect("Object is not a Move object");
+    pub fn from_object(obj: &Object, checkpoint_updated: i64) -> anyhow::Result<Self> {
+        let move_obj = obj
+            .data
+            .try_as_move()
+            .context("Object is not a Move object")?;
+
         let bytes = move_obj.contents();
 
         let assembly: MoveAssembly =
-            bcs::from_bytes(bytes).expect("Failed to deserialize Assembly object");
+            bcs::from_bytes(bytes).context("Failed to deserialize Assembly object")?;
 
         let location = format!("0x{:0>64}", hex::encode(&assembly.location.location_hash));
 
@@ -57,7 +62,7 @@ impl StoredAssembly {
             .map(|meta| (Some(meta.name), Some(meta.description), Some(meta.url)))
             .unwrap_or_default();
 
-        Self {
+        Ok(Self {
             id: assembly.id.to_hex(),
             item_id: assembly.key.item_id.to_string(),
             tenant: assembly.key.tenant,
@@ -70,6 +75,6 @@ impl StoredAssembly {
             description,
             url,
             checkpoint_updated,
-        }
+        })
     }
 }

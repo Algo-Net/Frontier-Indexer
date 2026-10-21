@@ -62,15 +62,18 @@ Along with defining a stored struct, a function is also added that is used to co
 
 ```rust
 impl StoredAssembly {
-    pub fn from_object(obj: &Object, checkpoint_updated: i64) -> Self {
-        let move_obj = obj.data.try_as_move().expect("Object is not a Move object");
+    pub fn from_object(obj: &Object, checkpoint_updated: i64) -> anyhow::Result<Self> {
+        let move_obj = obj
+            .data
+            .try_as_move()
+            .context("Object is not a Move object")?;
         let bytes = move_obj.contents();
 
         // Decode the raw BCS bytes into the Move mirror struct.
         let assembly: MoveAssembly =
-            bcs::from_bytes(bytes).expect("Failed to deserialize Assembly object");
+            bcs::from_bytes(bytes).context("Failed to deserialize Assembly object")?;
 
-        // Handle any unique fields that dont map cleanly from the move struct to the stored struct.
+        // Handle any unique fields that don't map cleanly from the move struct to the stored struct.
         let location = format!("0x{:0>64}", hex::encode(&assembly.location.location_hash));
 
         let energy_source_id = assembly.energy_source_id.map(|source| source.to_hex());
@@ -81,7 +84,7 @@ impl StoredAssembly {
             .unwrap_or_default();
 
         // Return the fully populated stored struct.
-        Self {
+        Ok(Self {
             id: assembly.id.to_hex(),
             item_id: assembly.key.item_id.to_string(),
             tenant: assembly.key.tenant,
@@ -94,14 +97,14 @@ impl StoredAssembly {
             description,
             url,
             checkpoint_updated,
-        }
+        })
     }
 }
 ```
 
 **Step 4 — Detect and process the object in the handler**
 
-`AppContext` includes a collection of functions that can be used to determining if a transaction, object, table, etc. should be indexed. There should be plenty of example handlers in the world section showing how to structure a handler and use these functions:
+`AppContext` includes a collection of functions that can be used to determine if a transaction, object, table, etc. should be indexed. There should be plenty of example handlers in the world section showing how to structure a handler and use these functions:
 
 ```rust
 // src/handlers/world/assemblies/assemblies/assembly_handler.rs
@@ -115,7 +118,7 @@ Inside the handler's `process` function, the handler iterates over every object 
 
 ```rust
 if self.is_assembly(obj) {
-    let assembly = StoredAssembly::from_object(obj, checkpoint_updated);
+    let assembly = StoredAssembly::from_object(obj, checkpoint_updated)?;
     results.push(AssemblyAction::Upsert(assembly));
 }
 ```
@@ -131,7 +134,9 @@ Some state transitions are only visible through the events emitted by a transact
 #[derive(Deserialize)]
 pub struct MoveItemDeposited {
     pub assembly_id: Address,
+    pub assembly_key: MoveTenantItemId,
     pub character_id: Address,
+    pub character_key: MoveTenantItemId,
     pub item_id: u64,
     pub type_id: u64,
     pub quantity: u32,
@@ -144,27 +149,26 @@ Events carry their payload in `event.contents` as BCS bytes. `EventMeta` capture
 
 ```rust
 impl StoredItemDeposited {
-    pub fn from_event(event: &Event, meta: &EventMeta) -> Self {
-        let move_event: MoveItemDeposited =
-            bcs::from_bytes(&event.contents)
-                .expect("Failed to deserialize Item Deposited event");
+    pub fn from_event(event: &Event, meta: &EventMeta) -> anyhow::Result<Self> {
+        let move_event: MoveItemDeposited = bcs::from_bytes(&event.contents)
+            .context("Failed to deserialize Item Deposited event")?;
 
         let occurred_at = DateTime::from_timestamp_millis(meta.checkpoint_timestamp_ms())
-            .expect("Failed to parse timestamp");
+            .context("Failed to parse checkpoint timestamp into DateTime")?;
 
-        Self {
+        Ok(Self {
             event_id: meta.event_digest(),
             occurred_at,
             item_id: move_event.item_id.to_string(),
             // ...
-        }
+        })
     }
 }
 ```
 
 **Step 3 — Detect and process the event in the handler**
 
-`AppContext` also includes helper function to check if an event should be indexed.
+`AppContext` also includes a helper function to check if an event should be indexed.
 
 ```rust
 // src/handlers/world/primitives/inventories/item_deposited_handler.rs
@@ -178,7 +182,7 @@ fn is_item_deposited(&self, event: &Event) -> bool {
 for (index, ev) in events.data.iter().enumerate() {
     if self.is_item_deposited(ev) {
         let meta = base_meta.with_index(index);
-        results.push(StoredItemDeposited::from_event(ev, &meta));
+        results.push(StoredItemDeposited::from_event(ev, &meta)?);
     }
 }
 ```
@@ -327,7 +331,7 @@ fn is_fuel_config_entry(
     let Some(table) = self.ctx.tables.get_record(&owner_id) else { return None; };
 
     // Confirm the parent struct belongs to a known world package.
-    let package_id = AccountAddress::from_str(&table.package_id).unwrap();
+    let package_id = AccountAddress::from_str(&table.package_id).ok()?;
     if table.module_name != "fuel" { return None; }
     if table.struct_name != "FuelConfig" { return None; }
     if !self.ctx.world_packages.contains(&package_id) { return None; }

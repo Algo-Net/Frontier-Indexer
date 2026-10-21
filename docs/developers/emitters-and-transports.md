@@ -4,13 +4,13 @@ The indexer can broadcast the data it processes to external systems in real-time
 
 ## Emitters
 
-An `Emitter<I>` is a high-level component that manages the dispatching of data batches to one or more transport implementations. Emitters are designed to be non-blocking; when data is dispatched, the emitter spawns an asynchronous tokio task to handle the delivery, ensuring that the main indexing pipeline is not delayed by network latency.
+An `Emitter<I>` is a high-level component that manages the dispatching of data batches to one or more transport implementations. Emitters are designed to be non-blocking; when an emitter is initialized, it spawns an asynchronous worker task that processes batches off an internal bounded channel, ensuring that the main indexing pipeline is not delayed by network latency.
 
 ### How it works
 
-1. **Initialization**: An emitter is created with a list of transports that implement the `Transport<I>` trait for a specific data type `I`.
+1. **Initialization**: An emitter is created with a list of transports that implement the `Transport<I>` trait for a specific data type `I`, establishing an internal bounded MPSC queue and background worker task.
 2. **Dispatching**: The `dispatch` method takes a pipeline name and a batch of items. The batch must implement the `Dispatchable` trait (which is implemented for `Vec<I>` and `HashMap<String, I>`).
-3. **Asynchronous Delivery**: The emitter iterates through the batch and calls `Transport::send` on every configured transport. If a transport fails to send a message, a warning is logged, but it does not stop other transports from receiving the data.
+3. **Asynchronous Delivery**: The worker task iterates through the batch items and calls `Transport::send` on every configured transport concurrently with a per-transport timeout. If a transport fails or times out, a warning is logged without preventing other transports from receiving the data.
 
 ### Integration in Handlers
 
@@ -18,7 +18,7 @@ In a handler, an emitter is typically held as an `Arc<Emitter<T>>` and used in t
 
 ```rust
 // Example dispatch in a handler's commit method
-self.emitter.dispatch("killmails", &batch).await;
+self.emitter.dispatch(Self::NAME, batch);
 ```
 
 ## Transports

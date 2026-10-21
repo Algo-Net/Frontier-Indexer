@@ -7,7 +7,7 @@ A custom [Sui](https://sui.io/) indexer for the EVE Frontier [world contracts](h
 > This project is still under active development. Interfaces and configuration options may change between releases.
 
 ## Getting Started
-If you are only looking for an indexer that covers the world contracts and dont intend to customize it in any way then the indexer is available as a docker container from [Github Container Registry.](https://github.com/Algo-Net/Frontier-Indexer/pkgs/container/frontier-indexer) Please see the [Getting Started](docs/users/getting-started.md) guide for an example of how it can be deployed.
+If you are only looking for an indexer that covers the world contracts and don't intend to customize it in any way then the indexer is available as a Docker container from the [GitHub Container Registry](https://github.com/Algo-Net/Frontier-Indexer/pkgs/container/frontier-indexer). Please see the [Getting Started](docs/users/getting-started.md) guide for an example of how it can be deployed.
 
 ## Quick Start (Local Deployment)
 The easiest way to start the indexer is using the provided Docker Compose stack, which includes both the indexer and a TimescaleDB instance.
@@ -90,10 +90,11 @@ For a full explanation of the handler system, package filtering, and how the ind
 - [Architecture Overview](docs/developers/architecture.md)
 - [World Contracts Integration](docs/developers/world_contracts.md)
 - [Database and Models](docs/developers/database.md)
+- [Parsing Move Objects](docs/developers/parsing-move-objects.md)
 - [Emitters and Transports](docs/developers/emitters-and-transports.md)
 
 ## Contributing
-Contributions to the project are welcomed as long as they stay within the scope of indexing official EVE Frontier data sources into a unified dataset or improving the implementation of this indexer. If you are unsure if your additions or improvements fit this criteria please create an issue or reach out to `Ocky` in the official [EVE Frontier discord.](https://discord.com/channels/1021714190102175754/1491364634920489003)
+Contributions to the project are welcomed as long as they stay within the scope of indexing official EVE Frontier data sources into a unified dataset or improving the implementation of this indexer. If you are unsure if your additions or improvements fit these criteria please create an issue or reach out to `Ocky` in the official [EVE Frontier Discord](https://discord.com/channels/1021714190102175754/1491364634920489003).
 
 ### Prerequisites
 - [Rust](https://www.rust-lang.org/tools/install) (version specified in `Dockerfile`, currently `1.90.0`)

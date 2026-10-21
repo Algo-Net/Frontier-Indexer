@@ -4,7 +4,7 @@ The indexer uses PostgreSQL for storage and Diesel as the ORM/Query builder.
 
 ## Migrations
 Database schema evolutions are handled via Diesel migrations.
-- **Location**: All migration scripts are located in the `/migrations` directory.
+- **Location**: All migration scripts are located in the `migrations/` directory.
 - **Application**: Migrations are automatically run at startup in `main.rs` using `embed_migrations!`.
 
 Each migration consists of an `up.sql` (to apply changes) and a `down.sql` (to revert changes).
@@ -18,7 +18,7 @@ The project uses the [Diesel CLI](https://diesel.rs/guides/getting-started) to m
    PSQL_URL=postgres://[user]:[password]@[host]:5432/[database]?options=-csearch_path%3D[schema]
    ```
 > [!NOTE]
-> It is important to include the `search_path` in the connection string if you want everything contained in the specified schema. Without it Diesel will put internal functions and tables in the `public` schema and it becomes much harder to cleanly manage everything related to the indexer.
+> It is important to include the `search_path` in the connection string if you want everything contained in the specified schema. Without it, Diesel will put internal functions and tables in the `public` schema and it becomes much harder to cleanly manage everything related to the indexer.
 
 2. Verify the connection works:
    ```sh
@@ -41,7 +41,7 @@ The project uses the [Diesel CLI](https://diesel.rs/guides/getting-started) to m
    ```sh
    diesel migration generate <name_here>
    ```
-   This creates a new directory under `/migrations` with blank `up.sql` and `down.sql` files for you to fill in.
+   This creates a new directory under `migrations/` with blank `up.sql` and `down.sql` files for you to fill in.
 
 5. Apply the migration:
    ```sh
@@ -55,9 +55,9 @@ The project uses the [Diesel CLI](https://diesel.rs/guides/getting-started) to m
 
 ## Models
 The data models are defined in `src/models/`. They are split into:
-- **App Models**: Contains application-specific object models. If you are indexing your own application data alongside the world data then keep the models here.
-- **World Models**: Contains models related to the state of the world contracts (e.g., `src/models/world.rs`).
-- **System Models**: Contains internal indexer models or models used to more efficiently index the world contracts (e.g., `src/models/system.rs`).
+- **App Models** (`src/models/app/`): Contains application-specific object models. If you are indexing your own application data alongside the world data, define your models here.
+- **World Models** (`src/models/world/`): Contains models related to the state of the world contracts (re-exported via `src/models/world.rs`).
+- **System Models** (`src/models/system/`): Contains internal indexer models or models used to index the world contracts (re-exported via `src/models/system.rs`).
 
 ## Registries
 The system uses "Registries" to load configuration from the database at startup:

@@ -7,7 +7,7 @@ Review and update project documentation (`README.md` and all files in `docs/`) t
 
 ### 1. Fix User Documentation
 - [x] Update `docs/users/getting-started.md` to correct typos, grammar, and host mount path references.
-- [ ] Update `docs/users/configuration.md` to change `SANDBOX_ENABLE` / `SANDBOX=true` to `SANDBOX_ENABLED`, fix typos, and ensure all configuration options match `src/config.rs`.
+- [x] Update `docs/users/configuration.md` to change `SANDBOX_ENABLE` / `SANDBOX=true` to `SANDBOX_ENABLED`, fix typos, and ensure all configuration options match `src/config.rs`.
 - [ ] Update `docs/users/data-retention.md` to add missing hypertables (`killmails`, rift events), fix typos, and ensure consistency.
 
 ### 2. Fix Developer Documentation

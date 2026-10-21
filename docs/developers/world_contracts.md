@@ -17,6 +17,8 @@ The `AppContext` struct (`src/lib.rs`) is passed to every handler and provides t
 | `is_world_event(event, module, name)` | Whether an event's type matches a given module/event name from a known world package address. |
 | `is_world_struct(tag, module, struct)` | Whether a raw `TypeTag` matches a given module/struct from a known world package. Used when inspecting type parameters of dynamic field objects. |
 
+*(Note: Equivalent `is_sui_object`, `is_sui_event`, and `is_sui_struct` helpers are also available on `AppContext` for inspecting standard Sui package objects and events.)*
+
 ## Handlers
 Handlers are registered in `src/main.rs` and organised under `src/handlers/world/` into sub-modules that mirror the world contract structure:
 
@@ -32,12 +34,13 @@ src/handlers/world/
 │   └── turrets/
 ├── characters/
 ├── killmails/
-└── primitives/
-    ├── energy/      # EnergyConfig tables, production events
-    ├── fuel/        # FuelConfig tables, burning events
-    ├── inventories/ # Inventory dynamic fields, item events
-    ├── locations/
-    └── status/
+├── primitives/
+│   ├── energy/      # EnergyConfig tables, production events
+│   ├── fuel/        # FuelConfig tables, burning events
+│   ├── inventories/ # Inventory dynamic fields, item events
+│   ├── locations/
+│   └── status/
+└── rifts/           # Rift objects, spawn/mine/location broadcast events
 ```
 
 Each handler implements two traits from `sui-indexer-alt-framework`:

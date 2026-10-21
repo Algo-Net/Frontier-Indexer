@@ -18,7 +18,7 @@ Review and update project documentation (`README.md` and all files in `docs/`) t
 - [x] Update `docs/developers/emitters-and-transports.md` to verify transport descriptions match implementations.
 
 ### 3. Fix Project Root README
-- [ ] Update `README.md` to add the missing link to `parsing-move-objects.md`, fix grammatical issues and link formatting.
+- [x] Update `README.md` to add the missing link to `parsing-move-objects.md`, fix grammatical issues and link formatting.
 
 ## Notes
 - Do not make changes anywhere else in the repository outside of `README.md` and `docs/`.

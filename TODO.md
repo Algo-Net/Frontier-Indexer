@@ -15,7 +15,7 @@ Review and update project documentation (`README.md` and all files in `docs/`) t
 - [x] Update `docs/developers/world_contracts.md` to add `rifts/` to the world handlers directory structure and verify helper methods match `src/lib.rs`.
 - [x] Update `docs/developers/database.md` to clarify model and migration descriptions.
 - [x] Update `docs/developers/parsing-move-objects.md` to align code snippets with the current codebase (proper Move event fields, `anyhow::Result` error handling, and safe unwrap patterns).
-- [ ] Update `docs/developers/emitters-and-transports.md` to verify transport descriptions match implementations.
+- [x] Update `docs/developers/emitters-and-transports.md` to verify transport descriptions match implementations.
 
 ### 3. Fix Project Root README
 - [ ] Update `README.md` to add the missing link to `parsing-move-objects.md`, fix grammatical issues and link formatting.

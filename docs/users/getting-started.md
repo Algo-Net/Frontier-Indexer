@@ -72,14 +72,14 @@ services:
       - prometheus
 ```
 
-This file will deploy a collection of containers and create directoryies in the same location as this file for the containers that require storge space:
-- TimescaleDB container with a `postgresql` directory to store database.
-- PgAdmin container with a `pgadmin` directory to store user information. User as the administrative tool for the database and can be access at `http://localhost:8080`
-- Indexer container with a `indexer` directory. This direcctory contains the `pipelines.toml` file which can be used to enable or disable any of the pipeline in the indexer.
+This file will deploy a collection of containers and create directories in the same location as this file for the containers that require storage space:
+- TimescaleDB container with a `postgresql` directory to store the database.
+- PgAdmin container with a `pgadmin` directory to store user information. Used as the administrative tool for the database and can be accessed at `http://localhost:8080`
+- Indexer container with an `indexer` directory. This directory contains the `pipelines.toml` file which can be used to enable or disable any of the pipelines in the indexer.
 - Prometheus container with a `prometheus` directory to store configuration and data.
-- Grafana container used to query and visualize the prometheus data. Can be accessed at `http://localhost:8081`
+- Grafana container used to query and visualize the Prometheus data. Can be accessed at `http://localhost:8081`
 
-If you already have your own administrative or monitoring solutions you can omit those entries from the file or replacce it with other solutions you might prefer.
+If you already have your own administrative or monitoring solutions you can omit those entries from the file or replace them with other solutions you might prefer.
 
 Run it with:
 ```sh
@@ -87,8 +87,8 @@ docker compose up -d
 ```
 
 ### Configuring Prometheus
-The above exmaple deploys a prometheus container as part of the stack. In order for prometheus to collect data from the indexer it requires a configuration file.
-The file will be located at `/prometheus/prometheus.yml` and a simple example configuration looks as follows:
+The above example deploys a Prometheus container as part of the stack. In order for Prometheus to collect data from the indexer it requires a configuration file.
+The file will be located at `./prometheus/prometheus.yml` and a simple example configuration looks as follows:
 
 ``` yaml
 # prometheus.yml

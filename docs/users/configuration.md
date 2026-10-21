@@ -29,7 +29,7 @@ Control which network and data the indexer targets.
 | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
 | `SUI_NETWORK`      | The Sui network to index (`mainnet` or `testnet`)                                                                                              | `testnet`                                                 |
 | `PACKAGES`         | Comma-separated list of data groups to index. `world` indexes the EVE Frontier world contracts. `app` is reserved for custom application data. | `app,world`                                               |
-| `FIRST_CHECKPOINT` | Start indexing from this checkpoint sequence number. Useful when backfilling data so the indexer doesnt start from 0.                          | (None — starts from 0 or last committed watermark if any) |
+| `FIRST_CHECKPOINT` | Start indexing from this checkpoint sequence number. Useful when backfilling data so the indexer doesn't start from 0.                          | (None — starts from 0 or last committed watermark if any) |
 | `LAST_CHECKPOINT`  | Stop indexing after reaching this checkpoint sequence number.                                                                                  | (None — runs continuously)                                |
 | `PIPELINES`        | Comma-separated list of pipeline names to run. When set, only the named pipelines are active and all others are skipped.                       | (None — all pipelines run)                                |
 
@@ -60,7 +60,7 @@ Controls where the indexer fetches data from.
 > Store Headers can be used with any of the other options.
 
 ### Event Emitting
-The indexer has the ability to broadcast the data being stored in the database out to other systems using a select number of transport protocols. This section controls the configuration of these transport protocols
+The indexer has the ability to broadcast the data being stored in the database out to other systems using a select number of transport protocols. This section controls the configuration of these transport protocols.
 
 | Variable               | Description                                                                                                                                    | Default   |
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
@@ -86,9 +86,9 @@ Sandbox mode is for testing and development. It allows the indexer to run agains
 
 | Variable                 | Description                                                                                                                        | Default    |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| `SANDBOX_ENABLE`         | Enable sandbox mode. Requires `SANDBOX_APP_PACKAGES` to also be set.                                                               | `false`    |
+| `SANDBOX_ENABLED`        | Enable sandbox mode. Requires `SANDBOX_APP_PACKAGES` to also be set.                                                               | `false`    |
 | `SANDBOX_NETWORK`        | The network environment for sandbox mode (`localnet` or `testnet`).                                                                | `localnet` |
-| `SANDBOX_APP_PACKAGES`   | Comma-separated list of App package IDs to track. Required when `SANDBOX=true`.                                                    | (None)     |
+| `SANDBOX_APP_PACKAGES`   | Comma-separated list of App package IDs to track. Required when `SANDBOX_ENABLED=true`.                                            | (None)     |
 | `SANDBOX_WORLD_PACKAGES` | Comma-separated list of World package IDs to use instead of the hardcoded addresses. When omitted, the World pipeline is disabled. | (None)     |
 | `SANDBOX_INGESTION_PATH` | Path to a local directory of checkpoint files. Required when `SANDBOX_NETWORK=localnet`.                                           | (None)     |
 
@@ -109,11 +109,11 @@ Controls how checkpoints are gathered and written to the database.
 | `PROCESSOR_CHANNEL_SIZE`       | Size of the internal channel between the processor and committer stages. Increasing this allows more checkpoints to be processed ahead of commits. | (None)  |
 
 ### Ingestion
-Controls how aggresively checkpoint data is fetched.
+Controls how aggressively checkpoint data is fetched.
 
 | Variable                               | Description                                                                       | Default |
 | -------------------------------------- | --------------------------------------------------------------------------------- | ------- |
-| `INGEST_CONCURRENCY_MAX`               | How many concurrent ingestion requests are allowed to run at any give time.       | `500`   |
+| `INGEST_CONCURRENCY_MAX`               | How many concurrent ingestion requests are allowed to run at any given time.       | `500`   |
 | `RETRY_INTERVAL_MS`                    | How long to wait before retrying a failed checkpoint fetch, in milliseconds.      | `200`   |
 | `STREAMING_BACKOFF_INITIAL_BATCH_SIZE` | Starting batch size for the streaming backoff strategy when fetching checkpoints. | `10`    |
 | `STREAMING_BACKOFF_MAX_BATCH_SIZE`     | Maximum batch size the streaming backoff strategy will grow to.                   | `10000` |

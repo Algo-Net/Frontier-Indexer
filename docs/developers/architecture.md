@@ -17,7 +17,7 @@ Sui Checkpoint Store/Stream
 Ingestion Client        Fetches full checkpoint content
   |
   v
-Sequential Pipelines    Checkpoint content is broadcasted to all registered Handlers
+Sequential Pipelines    Checkpoint content is broadcast to all registered Handlers
   |
   v
 Handlers                Filters checkpoint data to relevant packages and transforms data for storage / emitting
@@ -26,7 +26,7 @@ Handlers                Filters checkpoint data to relevant packages and transfo
 Database                Batches of events and object updates are stored in PostgreSQL via Diesel
   |
   v
-Event Emitter           Batches are emitted to registered transport protocols only after successful commit to database.
+Event Emitter           Batches are emitted to registered transport protocols only after successful commit to the database.
 ```
 
 1. **Ingestion Client**: Pulls checkpoint bundles from a remote store (e.g. `https://checkpoints.testnet.sui.io`), gRPC stream (e.g. `https://fullnode.testnet.sui.io:443`) or a local path.
@@ -42,7 +42,7 @@ The `AppContext` struct (`src/lib.rs`) is constructed once at startup and shared
 - The set of known world and app package addresses to index.
 - Functions to help determine if transactions should be indexed or not.
 - The `TableRegistry` — an in-memory cache of Move `Table` object IDs mapped to their parent structs, used to index table entries.
-- The `FuelRegistry` — an in-memory cache to lookup world fuel efficiency values.
+- The `FuelRegistry` — an in-memory cache to look up world fuel efficiency values.
 
 ## Monitoring
 The system exposes Prometheus metrics via a dedicated `MetricsService` on `0.0.0.0:9184` by default, including database connection pool statistics.

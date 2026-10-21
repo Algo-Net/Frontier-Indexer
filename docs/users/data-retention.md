@@ -20,12 +20,14 @@ SELECT add_retention_policy('events_fuel_burning_updated', INTERVAL '30 days');
 
 ### Common Hypertables to Manage
 
-All event tables in the `indexer` schema are hypertables. You should cosider applying retention policies to the ones that grow the fastest and that you dont really need old historical data from, such as:
+All event tables in the `indexer` schema as well as the `killmails` table are hypertables partitioned by `occurred_at`. You should consider applying retention policies to the ones that grow the fastest and that you don't really need old historical data from, such as:
 
 - `events_energy_production_started`
 - `events_energy_production_stopped`
 - `events_energy_released`
 - `events_energy_reserved`
+- `events_fuel_burning_started`
+- `events_fuel_burning_stopped`
 - `events_fuel_burning_updated`
 - `events_fuel_deleted`
 - `events_item_burned`
@@ -33,6 +35,10 @@ All event tables in the `indexer` schema are hypertables. You should cosider app
 - `events_item_destroyed`
 - `events_item_minted`
 - `events_item_withdrawn`
+- `events_rift_location_broadcasted`
+- `events_rift_mining_started`
+- `events_rift_spawned`
+- `killmails`
 
 ### Checking Current Policies
 
